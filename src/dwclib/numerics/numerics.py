@@ -1,7 +1,8 @@
-from sqlalchemy import select, func, column
+from typing import Optional
 
 import numpy as np
 import pandas as pd
+from sqlalchemy import select, func, column
 
 
 def get_numerics_data(conn, dtbegin, dtend, patientid=None) -> Optional[pd.DataFrame]:
