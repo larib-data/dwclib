@@ -17,7 +17,7 @@ setup(
     long_description='Python wrapper to DataWarehouse Connect.',
     author='Jona JOACHIM',
     author_email='jona@joachim.cc',
-    url='https://github.com/jaj42/python-dwclib',
+    url='https://framagit.org/jaj/dwclib'
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
@@ -46,9 +46,7 @@ setup(
         # 'Programming Language :: Python :: Implementation :: Stackless',
         'Topic :: Utilities',
     ],
-    project_urls={
-        'Issue Tracker': 'https://github.com/jaj42/python-dwclib/issues',
-    },
+    project_urls={},
     keywords=[
         # eg: 'keyword1', 'keyword2', 'keyword3',
     ],
