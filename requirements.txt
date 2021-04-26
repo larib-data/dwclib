@@ -1,0 +1,5 @@
+numpy>=1.16.4
+pandas>=1.0
+typing>=3.7.4
+numba>=0.53.1
+sqlalchemy-pytds>=0.3.1

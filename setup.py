@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-import io
-import re
 from glob import glob
 from os.path import basename
-from os.path import dirname
-from os.path import join
 from os.path import splitext
 
 from setuptools import find_packages
 from setuptools import setup
-
-
-def read(*names, **kwargs):
-    with io.open(
-        join(dirname(__file__), *names),
-        encoding=kwargs.get('encoding', 'utf8')
-    ) as fh:
-        return fh.read()
 
 
 setup(
@@ -26,10 +14,7 @@ setup(
     version='0.20210426',
     license='ISC',
     description='Python wrapper to DataWarehouse Connect.',
-    long_description='%s\n%s' % (
-        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
-        re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
-    ),
+    long_description='Python wrapper to DataWarehouse Connect.',
     author='Jona JOACHIM',
     author_email='jona@joachim.cc',
     url='https://github.com/jaj42/python-dwclib',
@@ -62,8 +47,6 @@ setup(
         'Topic :: Utilities',
     ],
     project_urls={
-        'Documentation': 'https://python-dwclib.readthedocs.io/',
-        'Changelog': 'https://python-dwclib.readthedocs.io/en/latest/changelog.html',
         'Issue Tracker': 'https://github.com/jaj42/python-dwclib/issues',
     },
     keywords=[
@@ -71,7 +54,11 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        # eg: 'aspectlib==1.1.1', 'six>=1.7',
+        'numpy>=1.16.4',
+        'pandas>=1.0',
+        'typing>=3.7.4',
+        'numba>=0.53.1',
+        'sqlalchemy-pytds>=0.3.1',
     ],
     extras_require={
         # eg:
