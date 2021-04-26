@@ -11,13 +11,13 @@ from setuptools import setup
 
 setup(
     name='dwclib',
-    version='0.20210426',
+    version='0.20210427',
     license='ISC',
     description='Python wrapper to DataWarehouse Connect.',
     long_description='Python wrapper to DataWarehouse Connect.',
     author='Jona JOACHIM',
     author_email='jona@joachim.cc',
-    url='https://framagit.org/jaj/dwclib'
+    url='https://framagit.org/jaj/dwclib',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
