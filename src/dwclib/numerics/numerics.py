@@ -5,12 +5,12 @@ import pandas as pd
 from sqlalchemy import select, func, column
 
 
-def get_numerics_data(conn, dtbegin, dtend, patientid=None) -> Optional[pd.DataFrame]:
+def get_numerics_data(conn, dtbegin, dtend, patientid) -> Optional[pd.DataFrame]:
     q = build_numerics_query(dtbegin, dtend, patientid)
     return run_numerics_query(conn, q)
 
 
-def build_numerics_query(dtbegin, dtend, patientid=None):
+def build_numerics_query(dtbegin, dtend, patientid):
     columns = [
         'DateTime',
         'PatientId',
@@ -25,15 +25,13 @@ def build_numerics_query(dtbegin, dtend, patientid=None):
 
 
 def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
-    df = pd.read_sql(q, conn, params={})
-    # Remove NaN rows
+    df = pd.read_sql(q, conn)
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
         return None
-
     df['Value'] = df['Value'].astype('float32')
-
     df = df.pivot_table(
         index='DateTime', columns='Label', values='Value', aggfunc=np.nanmax
     )
+    df.index = df.index.astype('datetime64[ns]')
     return df

@@ -57,6 +57,7 @@ setup(
         'typing>=3.7.4',
         'numba>=0.53.1',
         'sqlalchemy-pytds>=0.3.1',
+        'ntlm-auth>=1.5.0',
     ],
     extras_require={
         # eg:

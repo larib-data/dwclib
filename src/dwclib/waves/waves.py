@@ -45,7 +45,6 @@ def build_wave_query(dtbegin, dtend, patientid=None):
         'CSU',
         'CSL',
     ]
-    # Leave out 'UnitLabel'
     q = select([column(c) for c in columns])
     q = q.select_from(func.LrbWaveChunksForPeriod(dtbegin, dtend))
     if patientid:
