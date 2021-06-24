@@ -8,10 +8,16 @@ from sqlalchemy import select
 
 
 def get_numerics_data(
-    conn, dtbegin, dtend, patientid
+    conn, dtbegin, dtend, patientid, labels=[]
 ) -> Optional[pd.DataFrame]:
     q = build_numerics_query(dtbegin, dtend, patientid)
-    return run_numerics_query(conn, q)
+    if labels:
+        q = q.where(column('Label').in_(labels))
+    df = run_numerics_query(conn, q)
+    if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
+        # Only 1 patient
+        df.columns = df.columns.droplevel(0)
+    return df
 
 
 def build_numerics_query(dtbegin, dtend, patientid):
