@@ -47,7 +47,7 @@ def _read_sql_chunk(
 ):
     engine = create_engine(uri)
     q = build_numerics_query(dtbegin, dtend, patientid)
-    with engine.connect as conn:
+    with engine.connect() as conn:
         df = pd.read_sql(q, conn)
         df = df.dropna(axis=0, how='any', subset=['Value'])
         df['Value'] = df['Value'].astype('float32')
