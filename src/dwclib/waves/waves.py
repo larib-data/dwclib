@@ -11,25 +11,6 @@ from sqlalchemy import select
 from dwclib.waves.wave_unfold import wave_unfold
 
 
-def unfold_row(basetime, bytesamples, period, cau, cal, csu, csl) -> pd.Series:
-    calibs = [cau, cal, csu, csl]
-    doscale = not any([x is None for x in calibs])
-    cau, cal, csu, csl = [float(x) if x is not None else 0 for x in calibs]
-    realvals = wave_unfold(bytesamples, doscale, cau, cal, csu, csl)
-    # Generate millisecond index
-    timestamps = basetime + period * np.arange(len(realvals))
-    # Convert to datetime[64]
-    timestamps = timestamps.astype('M8[ms]')
-    return pd.Series(realvals, index=timestamps)
-
-
-def dictconcatter(d) -> pd.DataFrame:
-    def dictconcat_runner(k):
-        d[k] = pd.concat(d[k], axis=0, copy=False).groupby(level=0).max()
-
-    return dictconcat_runner
-
-
 def get_wave_data(
     conn, dtbegin, dtend, patientid, labels=[]
 ) -> Optional[pd.DataFrame]:
@@ -74,13 +55,29 @@ def run_wave_query(conn, q) -> Optional[pd.DataFrame]:
             row['CSL'],
         )
         databuffer[row['Label']].append(srow)
-
     if not databuffer:
         return None
-
     concatter = dictconcatter(databuffer)
     with ThreadPool() as pool:
         pool.map(concatter, databuffer.keys())
-
     df = pd.DataFrame(databuffer)
     return df
+
+
+def unfold_row(basetime, bytesamples, period, cau, cal, csu, csl) -> pd.Series:
+    calibs = [cau, cal, csu, csl]
+    doscale = not any([x is None for x in calibs])
+    cau, cal, csu, csl = [float(x) if x is not None else 0 for x in calibs]
+    realvals = wave_unfold(bytesamples, doscale, cau, cal, csu, csl)
+    # Generate millisecond index
+    timestamps = basetime + period * np.arange(len(realvals))
+    # Convert to datetime[64]
+    timestamps = timestamps.astype('M8[ms]')
+    return pd.Series(realvals, index=timestamps)
+
+
+def dictconcatter(d) -> pd.DataFrame:
+    def dictconcat_runner(k):
+        d[k] = pd.concat(d[k], axis=0, copy=False).groupby(level=0).max()
+
+    return dictconcat_runner

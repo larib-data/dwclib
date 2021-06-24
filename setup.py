@@ -11,7 +11,7 @@ from setuptools import setup
 
 setup(
     name='dwclib',
-    version='0.20210624.2',
+    version='0.20210624.3',
     license='ISC',
     description='Python wrapper to DataWarehouse Connect.',
     long_description='Python wrapper to DataWarehouse Connect.',
