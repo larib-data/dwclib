@@ -17,7 +17,7 @@ def get_wave_data(
     q = build_wave_query(dtbegin, dtend, patientid)
     if labels:
         q = q.where(column('Label').in_(labels))
-    df = build_wave_query(conn, q)
+    df = run_wave_query(conn, q)
     return df
 
 
