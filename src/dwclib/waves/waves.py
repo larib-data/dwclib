@@ -67,7 +67,10 @@ def run_wave_query(conn, q) -> Optional[pd.DataFrame]:
 def unfold_row(basetime, bytesamples, period, cau, cal, csu, csl) -> pd.Series:
     calibs = [cau, cal, csu, csl]
     doscale = not any([x is None for x in calibs])
-    cau, cal, csu, csl = [float(x) if x is not None else 0 for x in calibs]
+    if doscale:
+        cau, cal, csu, csl = (float(x) for x in calibs)
+    else:
+        cau, cal, csu, csl = (0, 0, 0, 0)
     realvals = wave_unfold(bytesamples, doscale, cau, cal, csu, csl)
     # Generate millisecond index
     timestamps = basetime + period * np.arange(len(realvals))
