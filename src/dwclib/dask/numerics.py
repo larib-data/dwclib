@@ -48,10 +48,10 @@ def _read_sql_chunk(
     engine = create_engine(uri)
     q = build_numerics_query(dtbegin, dtend, patientid)
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='DateTime')
-        df = df.dropna(axis=0, how='any', subset=['Value'])
-        df['Value'] = df['Value'].astype('float32')
+        df = pd.read_sql(q, conn)
     engine.dispose()
+    df = df.dropna(axis=0, how='any', subset=['Value'])
+    df['Value'] = df['Value'].astype('float32')
 
     if len(df) == 0:
         return meta
@@ -64,14 +64,17 @@ def _read_sql_chunk(
 
 
 def get_numeric_meta():
+    index = pd.DatetimeIndex([], name='DateTime')
     meta = pd.DataFrame(
         columns=[
             'PatientId',
             'Label',
             'Value',
-        ]
+        ],
+        index=index,
     )
     meta['PatientId'] = meta['PatientId'].astype(object)
     meta['Label'] = meta['Label'].astype(object)
     meta['Value'] = meta['Value'].astype(np.float32)
-    return dd.utils.make_meta(meta, index=pd.DatetimeIndex([]))
+    # return dd.utils.make_meta(meta, index=index)
+    return meta
