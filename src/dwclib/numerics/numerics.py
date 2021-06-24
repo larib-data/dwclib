@@ -36,8 +36,8 @@ def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
     df['Value'] = df['Value'].astype('float32')
     df = df.pivot_table(
         index='DateTime',
-        columns='Label',
-        values=['PatientId', 'Value'],
+        columns=['PatientId', 'Label'],
+        values='Value',
         aggfunc=np.nanmax,
     )
     df.index = df.index.astype('datetime64[ns]')
