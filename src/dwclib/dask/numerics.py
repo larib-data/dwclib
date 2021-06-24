@@ -66,14 +66,12 @@ def _read_sql_chunk(
 def get_numeric_meta():
     meta = pd.DataFrame(
         columns=[
-            #'DateTime',
             'PatientId',
             'Label',
             'Value',
         ]
     )
-    # meta['DateTime'] = meta['DateTime'].astype(np.datetime64)
     meta['PatientId'] = meta['PatientId'].astype(object)
     meta['Label'] = meta['Label'].astype(object)
     meta['Value'] = meta['Value'].astype(np.float32)
-    return meta
+    return dd.utils.make_meta(meta, index=pd.DatetimeIndex([]))
