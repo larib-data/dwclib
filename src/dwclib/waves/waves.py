@@ -1,10 +1,12 @@
-from typing import Optional
 from collections import defaultdict
 from multiprocessing.pool import ThreadPool
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import select, func, column
+from sqlalchemy import column
+from sqlalchemy import func
+from sqlalchemy import select
 
 from dwclib.waves.wave_unfold import wave_unfold
 
@@ -28,12 +30,17 @@ def dictconcatter(d) -> pd.DataFrame:
     return dictconcat_runner
 
 
-def get_wave_data(conn, dtbegin, dtend, patientid=None) -> Optional[pd.DataFrame]:
+def get_wave_data(
+    conn, dtbegin, dtend, patientid, labels=[]
+) -> Optional[pd.DataFrame]:
     q = build_wave_query(dtbegin, dtend, patientid)
-    return run_wave_query(conn, q)
+    if labels:
+        q = q.where(column('Label').in_(labels))
+    df = build_wave_query(conn, q)
+    return df
 
 
-def build_wave_query(dtbegin, dtend, patientid=None):
+def build_wave_query(dtbegin, dtend, patientid):
     columns = [
         'DateTime',
         'PatientId',
