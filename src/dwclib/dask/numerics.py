@@ -19,7 +19,7 @@ def read_numerics(
     uri,
     interval=timedelta(hours=1),
     engine_kwargs=None,
-    **kwargs
+    **kwargs,
 ):
     ranges = []
     for i in count():
@@ -45,22 +45,25 @@ def read_numerics(
 def _read_sql_chunk(
     dtbegin, dtend, patientid, uri, meta, engine_kwargs=None, **kwargs
 ):
+    print(f'{dtbegin=}, {dtend=}')
     engine = create_engine(uri)
     q = build_numerics_query(dtbegin, dtend, patientid)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='DateTime')
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
-    #df['Value'] = df['Value'].astype('float32')
+    # df['Value'] = df['Value'].astype('float32')
 
     if len(df) == 0:
-        return meta
+        ret = meta
     elif len(meta.dtypes.to_dict()) == 0:
         # only index column in loaded
         # required only for pandas < 1.0.0
-        return df
+        ret = df
     else:
-        return df.astype(meta.dtypes.to_dict(), copy=False)
+        ret = df.astype(meta.dtypes.to_dict(), copy=False)
+    print(ret.dtypes, ret)
+    return ret
 
 
 def get_numeric_meta():
