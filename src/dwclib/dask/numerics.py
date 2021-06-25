@@ -51,7 +51,7 @@ def _read_sql_chunk(
         df = pd.read_sql(q, conn, index_col='DateTime')
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
-    df['Value'] = df['Value'].astype('float32')
+    #df['Value'] = df['Value'].astype('float32')
 
     if len(df) == 0:
         return meta
@@ -75,6 +75,6 @@ def get_numeric_meta():
     )
     meta['PatientId'] = meta['PatientId'].astype(object)
     meta['Label'] = meta['Label'].astype(object)
-    meta['Value'] = meta['Value'].astype(np.float32)
+    meta['Value'] = meta['Value'].astype(float)
     # return dd.utils.make_meta(meta, index=index)
     return meta
