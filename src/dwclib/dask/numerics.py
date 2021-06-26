@@ -13,18 +13,18 @@ from dwclib.numerics import build_numerics_query
 
 
 def read_numerics(
-    patientid,
+    query,
     dtbegin,
     dtend,
     uri,
     interval=timedelta(hours=1),
     engine_kwargs=None,
-    **kwargs,
+    **kwargs
 ):
     ranges = []
     for i in count():
         beg = dtbegin + i * interval
-        end = beg + interval - timedelta(milliseconds=1)
+        end = beg + interval
         ranges.append((beg, end))
         if end >= dtend:
             break
@@ -36,34 +36,25 @@ def read_numerics(
     for begin, end in ranges:
         parts.append(
             delayed(_read_sql_chunk)(
-                begin, end, patientid, uri, meta, engine_kwargs=None, **kwargs
+                query, begin, end, uri, meta, engine_kwargs=None, **kwargs
             )
         )
     return dd.from_delayed(parts, meta, divisions=divisions)
 
 
 def _read_sql_chunk(
-    dtbegin, dtend, patientid, uri, meta, engine_kwargs=None, **kwargs
+    query, dtbegin, dtend, uri, meta, engine_kwargs=None, **kwargs
 ):
-    print(f'{dtbegin=}, {dtend=}')
     engine = create_engine(uri)
-    q = build_numerics_query(dtbegin, dtend, patientid)
+    # q = build_numerics_query(dtbegin, dtend, patientid)
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='DateTime')
+        df = pd.read_sql(query, conn, index_col='DateTime')
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
-    # df['Value'] = df['Value'].astype('float32')
-
     if len(df) == 0:
-        ret = meta
-    elif len(meta.dtypes.to_dict()) == 0:
-        # only index column in loaded
-        # required only for pandas < 1.0.0
-        ret = df
+        return meta
     else:
-        ret = df.astype(meta.dtypes.to_dict(), copy=False)
-    print(ret.dtypes, ret)
-    return ret
+        return df.astype(meta.dtypes.to_dict(), copy=False)
 
 
 def get_numeric_meta():
@@ -78,6 +69,6 @@ def get_numeric_meta():
     )
     meta['PatientId'] = meta['PatientId'].astype(object)
     meta['Label'] = meta['Label'].astype(object)
-    meta['Value'] = meta['Value'].astype(float)
+    meta['Value'] = meta['Value'].astype(np.float32)
     # return dd.utils.make_meta(meta, index=index)
     return meta
