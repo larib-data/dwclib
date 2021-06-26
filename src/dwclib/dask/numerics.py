@@ -13,11 +13,12 @@ from dwclib.numerics import build_numerics_query
 
 
 def read_numerics(
-    query,
+    patientid,
     dtbegin,
     dtend,
     uri,
     interval=timedelta(hours=1),
+    query_hook=None,
     engine_kwargs=None,
     **kwargs
 ):
@@ -36,19 +37,35 @@ def read_numerics(
     for begin, end in ranges:
         parts.append(
             delayed(_read_sql_chunk)(
-                query, begin, end, uri, meta, engine_kwargs=None, **kwargs
+                patientid,
+                begin,
+                end,
+                uri,
+                meta,
+                query_hook,
+                engine_kwargs=None,
+                **kwargs
             )
         )
     return dd.from_delayed(parts, meta, divisions=divisions)
 
 
 def _read_sql_chunk(
-    query, dtbegin, dtend, uri, meta, engine_kwargs=None, **kwargs
+    patientid,
+    dtbegin,
+    dtend,
+    uri,
+    meta,
+    query_hook=None,
+    engine_kwargs=None,
+    **kwargs
 ):
     engine = create_engine(uri)
-    # q = build_numerics_query(dtbegin, dtend, patientid)
+    q = build_numerics_query(dtbegin, dtend, patientid)
+    if query_hook:
+        q = query_hook(q)
     with engine.connect() as conn:
-        df = pd.read_sql(query, conn, index_col='DateTime')
+        df = pd.read_sql(q, conn, index_col='DateTime')
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if len(df) == 0:
