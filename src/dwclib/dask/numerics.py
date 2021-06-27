@@ -84,7 +84,7 @@ def get_numeric_meta():
         ],
         index=index,
     )
-    meta['PatientId'] = meta['PatientId'].astype(pd.StringDtype)
-    meta['Label'] = meta['Label'].astype(pd.StringDtype)
+    meta['PatientId'] = meta['PatientId'].astype('string')
+    meta['Label'] = meta['Label'].astype('string')
     meta['Value'] = meta['Value'].astype(np.float32)
     return meta
