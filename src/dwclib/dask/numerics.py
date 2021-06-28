@@ -68,7 +68,7 @@ def _read_sql_chunk(
         df = pd.read_sql(q, conn, index_col='DateTime')
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
-    df.index = df.index.astype(pd.DatetimeIndex, copy=False)
+    df.index = pd.to_datetime(df.index)
     if len(df) == 0:
         return meta
     else:
