@@ -69,7 +69,7 @@ def _read_sql_chunk(
     engine.dispose()
     df = df.dropna(axis=0, how='any', subset=['Value'])
     # df.index = pd.to_datetime(df.index, utc=True)
-    df.index = df.index.astype(pd.DatetimeIndex([], copy=False))
+    df.index = df.index.astype('datetime64[ns]')
     if len(df) == 0:
         return meta
     else:
@@ -77,7 +77,7 @@ def _read_sql_chunk(
 
 
 def get_numeric_meta():
-    index = pd.DatetimeIndex([], name='DateTime')
+    index = pd.Index([], name='DateTime').astype('datetime64[ns]')
     meta = pd.DataFrame(
         columns=[
             'PatientId',
