@@ -3,7 +3,11 @@ from pathlib import Path
 
 from sqlalchemy import MetaData
 from sqlalchemy import Table
+from sqlalchemy import Text
+from sqlalchemy import cast
+from sqlalchemy import column
 from sqlalchemy import create_engine
+from sqlalchemy import select
 
 configfilename = '.dwclibrc'
 configfile = Path(f'~/{configfilename}').expanduser()
@@ -19,8 +23,16 @@ assert dwcuri is not None
 pgdb = create_engine(pguri)
 pgmeta = MetaData(bind=pgdb)
 
-dwcdb = create_engine(dwcuri)
-dwcmeta = MetaData(bind=dwcdb)
+# dwcdb = create_engine(dwcuri)
+# dwcmeta = MetaData(bind=dwcdb)
 
 patientst = Table('patients', pgmeta, autoload_with=pgdb)
-patientlabelst = Table('patientlabels', pgmeta, autoload_with=pgdb)
+plabelst = Table('patientlabels', pgmeta, autoload_with=pgdb)
+
+p = patientst.c
+pl = plabelst.c
+plpatientst = select([patientst, pl.numericlabels, pl.wavelabels]).select_from(
+    patientst.join(
+        plabelst, cast(pl.patientid, Text) == p.patientid, isouter=True
+    )
+)
