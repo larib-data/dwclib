@@ -38,7 +38,7 @@ def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
     df = pd.read_sql(q, conn)
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
-        return None
+        return df
     df['Value'] = df['Value'].astype('float32')
     df = df.pivot_table(
         index='DateTime',
