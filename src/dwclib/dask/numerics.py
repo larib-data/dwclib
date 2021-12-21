@@ -7,25 +7,29 @@ from dask import delayed
 from dask.dataframe.utils import make_meta
 from sqlalchemy import MetaData
 from sqlalchemy import Table
-from sqlalchemy import and_
-from sqlalchemy import column
 from sqlalchemy import create_engine
 from sqlalchemy import select
 
 
 def build_metas():
-    df_numerics = pd.DataFrame({'SubLabel': []}, index=pd.Int64Index([], name='Id'))
-    df_numerics = df_numerics.astype(dtype={"SubLabel": "string"})
-    meta_numerics = make_meta(df_numerics)
-    df_numeric_values = pd.DataFrame(
-        {'PatientId': [], 'NumericId': [], 'Value': []},
-        index=pd.DatetimeIndex([], name='TimeStamp'),
-    )
-    df_numeric_values = df_numeric_values.astype(
-        dtype={"PatientId": "string", 'NumericId': 'int64', 'Value': 'float32'}
-    )
-    meta_numeric_values = make_meta(df_numeric_values)
-    return (meta_numerics, meta_numeric_values)
+    idx = pd.DatetimeIndex([], name='TimeStamp')
+    nums_dtypes = {
+        'Id': 'int64',
+        'SubLabel': 'string',
+    }
+    num_values_dtypes = {
+        'PatientId': 'string',
+        'NumericId': 'int64',
+        'Value': 'float32',
+    }
+    df_nums = pd.DataFrame({k: [] for k in nums_dtypes.keys()}, index=idx)
+    df_nums = df_nums.astype(dtype=nums_dtypes)
+    meta_nums = make_meta(df_nums)
+
+    df_num_values = pd.DataFrame({k: [] for k in num_values_dtypes.keys()}, index=idx)
+    df_num_values = df_num_values.astype(dtype=num_values_dtypes)
+    meta_num_values = make_meta(df_num_values)
+    return (meta_nums, meta_num_values)
 
 
 def build_divisions(dtbegin, dtend, interval):
@@ -41,18 +45,22 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def run_numerics_query(uri, dfmeta, dtbegin, dtend):
+def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
     engine = create_engine(uri)
     dbmeta = MetaData(bind=engine)
     nnt = Table(
         'External_Numeric', dbmeta, schema='dbo', autoload=True, autoload_with=engine
     )
-    q = select(nnt.c.Id, nnt.c.SubLabel)
+    q = select(nnt.c.Id, nnt.c.SubLabel, nnt.c.TimeStamp)
     q = q.where(nnt.c.TimeStamp >= dtbegin)
     q = q.where(nnt.c.TimeStamp < dtend)
     q = q.where(nnt.c.SubLabel is not None)
+    if labels:
+        q = q.where(nnt.c.SubLabel.in_(labels))
+
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='Id')
+        df = pd.read_sql(q, conn, index_col='TimeStamp')
+        df.index = df.index.astype('datetime64[ns]')
     engine.dispose()
     if len(df) == 0:
         return dfmeta
@@ -91,9 +99,7 @@ def read_numerics(
     dtend,
     uri,
     interval=timedelta(hours=1),
-    query_hook=None,
-    engine_kwargs=None,
-    **kwargs
+    labels=[],
 ):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     meta_numerics, meta_numeric_values = build_metas()
@@ -107,6 +113,7 @@ def read_numerics(
                 meta_numerics,
                 begin,
                 end,
+                labels,
             )
         )
         numeric_values_parts.append(
@@ -122,5 +129,7 @@ def read_numerics(
     nvdd = dd.from_delayed(
         numeric_values_parts, meta_numeric_values, divisions=divisions
     )
+    nndd = nndd.set_index('Id')
     ddf = nvdd.join(nndd, on='NumericId', how='inner')
+    ddf = ddf.drop('NumericId', axis=1)
     return ddf
