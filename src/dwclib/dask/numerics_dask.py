@@ -49,7 +49,7 @@ def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
     engine = create_engine(uri)
     dbmeta = MetaData(bind=engine)
     nnt = Table(
-        'External_Numeric', dbmeta, schema='dbo', autoload=True, autoload_with=engine
+        'Numeric_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
     )
     q = select(nnt.c.Id, nnt.c.SubLabel, nnt.c.TimeStamp)
     q = q.where(nnt.c.TimeStamp >= dtbegin)
@@ -72,11 +72,7 @@ def run_numeric_values_query(uri, dfmeta, pid, dtbegin, dtend):
     engine = create_engine(uri)
     dbmeta = MetaData(bind=engine)
     nvt = Table(
-        'External_NumericValue',
-        dbmeta,
-        schema='dbo',
-        autoload=True,
-        autoload_with=engine,
+        'NumericValue_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
     )
     q = select(nvt.c.PatientId, nvt.c.NumericId, nvt.c.TimeStamp, nvt.c.Value)
     q = q.where(nvt.c.TimeStamp >= dtbegin)

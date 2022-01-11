@@ -12,7 +12,7 @@ from sqlalchemy import join
 from sqlalchemy import select
 
 
-def build_query(engine, dtbegin, dtend, patientids=None, labels=[]):
+def build_query(engine, dtbegin, dtend, patientids=[], labels=[]):
     dbmeta = MetaData(bind=engine)
     nnt = Table(
         'Numeric_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
