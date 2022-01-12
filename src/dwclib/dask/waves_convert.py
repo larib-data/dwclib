@@ -1,38 +1,48 @@
+import os
+
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import xarray as xr
+from dask.dataframe.utils import make_meta
 
 from dwclib.waves.wave_unfold import wave_unfold
 
 
-def unfold_row(row: pd.Series) -> xr.DataArray:
-    basetime = 1000 * row.name.timestamp()
-    lbl = row['Label']
+def unfold_row(row: pd.Series) -> pd.Series:
+    basetime = 1000 * row.name[0].timestamp()
+    msperiod = row['SamplePeriod']
     bytesamples = row['WaveSamples']
-    period = row['SamplePeriod']
-    cau = row['CAU']
-    cal = row['CAL']
-    csu = row['CSU']
-    csl = row['CSL']
-
-    calibs = [cau, cal, csu, csl]
-    doscale = not any([x is None for x in calibs])
-    if doscale:
-        cau, cal, csu, csl = (float(x) for x in calibs)
+    calibs = [row[x] for x in ['CAU', 'CAL', 'CSU', 'CSL']]
+    noscale = any([x is None for x in calibs])
+    if noscale:
+        realvals = wave_unfold(bytesamples, False, 0, 0, 0, 0)
     else:
-        cau, cal, csu, csl = (0, 0, 0, 0)
-    realvals = wave_unfold(bytesamples, doscale, cau, cal, csu, csl)
+        realvals = wave_unfold(bytesamples, True, *calibs)
     # Generate millisecond index
-    timestamps = basetime + period * np.arange(len(realvals))
+    timestamps = basetime + msperiod * np.arange(len(realvals))
     # Convert to datetime[64]
-    timestamps = timestamps.astype('datetime64[ms]')
-    return xr.DataArray(realvals, coords=[timestamps], dims=['datetime'], name=lbl)
+    idx = pd.Index(timestamps.astype('datetime64[ms]'), name='TimeStamp')
+    return pd.Series(realvals, index=idx)
 
 
-def dataframe_to_dataset(ddf: dd.DataFrame) -> xr.Dataset:
-    arrays = ddf.map_partitions(
-        lambda df: df.apply(unfold_row, axis=1), meta=('x', object)
+def unfold_pandas_dataframe(df, columns):
+    idx = pd.MultiIndex.from_arrays(
+        [df.index, df['Label']], names=('TimeStamp', 'Label')
     )
-    ds = xr.merge(arrays, compat='override', join='outer')
-    return ds
+    df = df.set_index(idx)
+    unfolded = df.apply(unfold_row, axis=1)
+    transposed = unfolded.droplevel(0).groupby(level=0).max().T
+    missing_columns = set(columns) - set(transposed.columns)
+    result = transposed.assign(**{c: np.nan for c in missing_columns})
+    return result.reindex(sorted(result.columns), axis=1)
+
+
+def convert_dataframe(ddf: dd.DataFrame) -> dd.DataFrame:
+    colnames = sorted(ddf['Label'].unique().compute())
+    dfmeta = pd.DataFrame(columns=colnames, dtype='float32')
+    idx = pd.DatetimeIndex([], name='TimeStamp')
+    meta = make_meta(dfmeta, index=idx)
+    npartitions = min(os.cpu_count(), ddf.npartitions)
+    ddf = ddf.repartition(npartitions)
+    return ddf.map_partitions(unfold_pandas_dataframe, columns=colnames, meta=meta)

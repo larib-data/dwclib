@@ -12,7 +12,7 @@ from sqlalchemy import join
 from sqlalchemy import select
 
 
-def build_query(engine, dtbegin, dtend, patientids=[], labels=[]):
+def build_query(engine, dtbegin, dtend, patientid=[], labels=[]):
     dbmeta = MetaData(bind=engine)
     wwt = Table('Wave_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
     wst = Table(
@@ -39,8 +39,8 @@ def build_query(engine, dtbegin, dtend, patientids=[], labels=[]):
     ws = ws.where(wst.c.TimeStamp >= dtbegin)
     ws = ws.where(wst.c.TimeStamp < dtend)
     ws = ws.where(wst.c.WaveSamples is not None)
-    if patientids:
-        ws = ws.where(wst.c.PatientId.in_(patientids))
+    if patientid:
+        ws = ws.where(wst.c.PatientId == patientid)
     ws = ws.cte('WaveSample')
 
     j = join(ws, ww, ws.c.WaveId == ww.c.Id)
@@ -88,9 +88,9 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def run_query(uri, dfmeta, dtbegin, dtend, patientids=[], labels=[]):
+def run_query(uri, dfmeta, dtbegin, dtend, patientid=[], labels=[]):
     engine = create_engine(uri)
-    q = build_query(engine, dtbegin, dtend, patientids, labels)
+    q = build_query(engine, dtbegin, dtend, patientid, labels)
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
@@ -103,7 +103,7 @@ def run_query(uri, dfmeta, dtbegin, dtend, patientids=[], labels=[]):
 
 
 def read_wave_chunks(
-    patientids,
+    patientid,
     dtbegin,
     dtend,
     uri,
@@ -120,7 +120,7 @@ def read_wave_chunks(
                 meta,
                 begin,
                 end,
-                patientids,
+                patientid,
                 labels,
             )
         )
