@@ -4,7 +4,7 @@ from numba import njit
 
 @njit
 def wave_unfold(
-    indata: bytes, doscale: bool, cau: float, cal: float, csu: float, csl: float
+    indata: bytes, doscale: bool, cau: float, cal: float, csu: int, csl: int
 ):
     npindata = np.frombuffer(indata, dtype=np.int16)
     if doscale:

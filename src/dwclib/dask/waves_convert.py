@@ -1,9 +1,6 @@
-import os
-
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import xarray as xr
 from dask.dataframe.utils import make_meta
 
 from dwclib.waves.wave_unfold import wave_unfold
@@ -43,6 +40,6 @@ def convert_dataframe(ddf: dd.DataFrame) -> dd.DataFrame:
     dfmeta = pd.DataFrame(columns=colnames, dtype='float32')
     idx = pd.DatetimeIndex([], name='TimeStamp')
     meta = make_meta(dfmeta, index=idx)
-    npartitions = min(os.cpu_count(), ddf.npartitions)
+    npartitions = 20 * ddf.npartitions
     ddf = ddf.repartition(npartitions)
     return ddf.map_partitions(unfold_pandas_dataframe, columns=colnames, meta=meta)
