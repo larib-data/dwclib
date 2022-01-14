@@ -72,7 +72,7 @@ def run_query(uri, dfmeta, dtbegin, dtend, patientids=[], labels=[]):
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
-        df.index = df.index.astype('datetime64[ns]')
+        df = df.tz_localize(None)
     engine.dispose()
     if len(df) == 0:
         return dfmeta

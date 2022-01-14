@@ -60,7 +60,7 @@ def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
-        df.index = df.index.astype('datetime64[ns]')
+        df = df.tz_localize(None)
     engine.dispose()
     if len(df) == 0:
         return dfmeta
@@ -81,7 +81,7 @@ def run_numeric_values_query(uri, dfmeta, pid, dtbegin, dtend):
     q = q.where(nvt.c.Value is not None)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
-        df.index = df.index.astype('datetime64[ns]')
+        df = df.tz_localize(None)
     engine.dispose()
     if len(df) == 0:
         return dfmeta

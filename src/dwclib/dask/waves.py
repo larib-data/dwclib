@@ -11,9 +11,10 @@ def read_waves(
     dtend,
     labels=[],
     interval=timedelta(hours=1),
+    npartitions=None,
     uri=None,
 ):
     if not uri:
         uri = dwcuri
     ddf = read_wave_chunks(patientid, dtbegin, dtend, uri, labels, interval)
-    return convert_dataframe(ddf, labels)
+    return convert_dataframe(ddf, labels, npartitions)
