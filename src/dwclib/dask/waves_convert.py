@@ -38,7 +38,7 @@ def unfold_pandas_dataframe(df, columns):
 def convert_dataframe(ddf: dd.DataFrame, labels=None) -> dd.DataFrame:
     if not labels:
         labels = ddf['Label'].unique().compute()
-    labels = set(sorted(labels))
+    labels = sorted(set(labels))
     dfmeta = pd.DataFrame(columns=labels, dtype='float32')
     idx = pd.DatetimeIndex([], name='TimeStamp')
     meta = make_meta(dfmeta, index=idx)
