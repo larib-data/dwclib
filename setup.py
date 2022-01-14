@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name='dwclib',
-    version='2022.1.12',
+    version='2022.1.13',
     license='ISC',
     description='Python wrapper to DataWarehouse Connect.',
     long_description='Python wrapper to DataWarehouse Connect.',
@@ -55,8 +55,7 @@ setup(
         'pandas>=1.0',
         'typing>=3.7.4',
         'numba>=0.53.1',
-        'sqlalchemy-pytds>=0.3.1',
-        'ntlm-auth>=1.5.0',
+        'sqlalchemy>=1.3',
     ],
     extras_require={
         # eg:
