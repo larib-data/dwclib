@@ -8,9 +8,9 @@ def read_waves(
     patientid,
     dtbegin,
     dtend,
-    uri,
     labels=[],
     interval=timedelta(hours=1),
+    uri=None,
 ):
     ddf = read_wave_chunks(patientid, dtbegin, dtend, uri, labels, interval)
     return convert_dataframe(ddf, labels)
