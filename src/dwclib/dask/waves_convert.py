@@ -35,11 +35,13 @@ def unfold_pandas_dataframe(df, columns):
     return result.reindex(sorted(result.columns), axis=1)
 
 
-def convert_dataframe(ddf: dd.DataFrame) -> dd.DataFrame:
-    colnames = sorted(ddf['Label'].unique().compute())
-    dfmeta = pd.DataFrame(columns=colnames, dtype='float32')
+def convert_dataframe(ddf: dd.DataFrame, labels=None) -> dd.DataFrame:
+    if not labels:
+        labels = ddf['Label'].unique().compute()
+    labels = set(sorted(labels))
+    dfmeta = pd.DataFrame(columns=labels, dtype='float32')
     idx = pd.DatetimeIndex([], name='TimeStamp')
     meta = make_meta(dfmeta, index=idx)
     npartitions = 20 * ddf.npartitions
     ddf = ddf.repartition(npartitions)
-    return ddf.map_partitions(unfold_pandas_dataframe, columns=colnames, meta=meta)
+    return ddf.map_partitions(unfold_pandas_dataframe, columns=labels, meta=meta)

@@ -13,4 +13,4 @@ def read_waves(
     interval=timedelta(hours=1),
 ):
     ddf = read_wave_chunks(patientid, dtbegin, dtend, uri, labels, interval)
-    return convert_dataframe(ddf)
+    return convert_dataframe(ddf, labels)

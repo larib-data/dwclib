@@ -12,7 +12,7 @@ from sqlalchemy import join
 from sqlalchemy import select
 
 
-def build_query(engine, dtbegin, dtend, patientid=[], labels=[]):
+def build_query(engine, dtbegin, dtend, patientid, labels=[]):
     dbmeta = MetaData(bind=engine)
     wwt = Table('Wave_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
     wst = Table(
@@ -88,13 +88,13 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def run_query(uri, dfmeta, dtbegin, dtend, patientid=[], labels=[]):
+def run_query(uri, dfmeta, dtbegin, dtend, patientid, labels=[]):
     engine = create_engine(uri)
     q = build_query(engine, dtbegin, dtend, patientid, labels)
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
-        df.index = df.index.astype('datetime64[ns]')
+        df = df.tz_localize(None)
     engine.dispose()
     if len(df) == 0:
         return dfmeta
