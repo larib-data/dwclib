@@ -39,14 +39,14 @@ pguri = URL.create(
     database=config.get('dwcmeta', 'dbname'),
 )
 
-pgdb = create_engine(pguri)
-pgmeta = MetaData(bind=pgdb)
-
-patientst = Table('patients', pgmeta, autoload_with=pgdb)
-plabelst = Table('patientlabels', pgmeta, autoload_with=pgdb)
-
-p = patientst.c
-pl = plabelst.c
-plpatientst = select([patientst, pl.numericlabels, pl.wavelabels]).select_from(
-    patientst.join(plabelst, cast(pl.patientid, Text) == p.patientid, isouter=True)
-)
+# pgdb = create_engine(pguri)
+# pgmeta = MetaData(bind=pgdb)
+#
+# patientst = Table('patients', pgmeta, autoload_with=pgdb)
+# plabelst = Table('patientlabels', pgmeta, autoload_with=pgdb)
+#
+# p = patientst.c
+# pl = plabelst.c
+# plpatientst = select([patientst, pl.numericlabels, pl.wavelabels]).select_from(
+#    patientst.join(plabelst, cast(pl.patientid, Text) == p.patientid, isouter=True)
+# )

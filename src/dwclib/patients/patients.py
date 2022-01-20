@@ -1,13 +1,13 @@
 from typing import List
 
 import pandas as pd
+from sqlalchemy import MetaData
+from sqlalchemy import Table
 from sqlalchemy import asc
-from sqlalchemy import cast
 from sqlalchemy import create_engine
 from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy import select
-from sqlalchemy.types import Text
 
 from dwclib.db import engines
 
@@ -24,7 +24,10 @@ def read_patients(
     numericlabels: List[str] = [],
     uri=None,
 ):
+    if not uri:
+        uri = engines.pguri
     q = build_query(
+        uri,
         patientid,
         name,
         ipp,
@@ -35,8 +38,6 @@ def read_patients(
         wavelabels,
         numericlabels,
     )
-    if not uri:
-        uri = engines.pguri
     engine = create_engine(uri)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='patientid')
@@ -44,19 +45,23 @@ def read_patients(
 
 
 def build_query(
-    patientid: str = None,
-    name: str = None,
-    ipp: str = None,
-    dtbegin: str = None,
-    dtend: str = None,
-    clinicalunit: str = None,
-    bedlabel: str = None,
-    wavelabels: List[str] = [],
-    numericlabels: List[str] = [],
+    uri,
+    patientid,
+    name,
+    ipp,
+    dtbegin,
+    dtend,
+    clinicalunit,
+    bedlabel,
+    wavelabels,
+    numericlabels,
 ):
-    t_patients = engines.patients_t
+    pgdb = create_engine(uri)
+    pgmeta = MetaData(bind=pgdb)
+
+    t_patients = Table('patients', pgmeta, autoload_with=pgdb)
     p = t_patients.c
-    t_patientlabels = engines.patientlabelst
+    t_patientlabels = Table('patientlabels', pgmeta, autoload_with=pgdb)
     pl = t_patientlabels.c
 
     if name:
@@ -74,11 +79,7 @@ def build_query(
 
     q = select([t_patients, pl.numericlabels, pl.wavelabels])
     q = q.select_from(
-        t_patients.join(
-            t_patientlabels,
-            cast(pl.patientid, Text) == p.patientid,
-            isouter=True,
-        )
+        t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True)
     )
     if patientid:
         q = q.where(p.patientid == patientid)
