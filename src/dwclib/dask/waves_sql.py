@@ -33,7 +33,7 @@ def build_query(engine, dtbegin, dtend, patientid, labels=[]):
     ww = ww.where(wwt.c.TimeStamp < dtend)
     if labels:
         ww = ww.where(wwt.c.Label.in_(labels))
-    ww = ww.cte('Waves')
+    ww = ww.cte('Wave')
 
     ws = select(wst.c.TimeStamp, wst.c.WaveId, wst.c.WaveSamples, wst.c.PatientId)
     ws = ws.where(wst.c.TimeStamp >= dtbegin)

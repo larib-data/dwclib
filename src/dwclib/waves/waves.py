@@ -5,19 +5,29 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 from sqlalchemy import column
+from sqlalchemy import create_engine
 from sqlalchemy import func
 from sqlalchemy import select
 
+from dwclib.db.engines import dwcuri
 from dwclib.waves.wave_unfold import wave_unfold
 
 
-def get_wave_data(
-    conn, dtbegin, dtend, patientid, labels=[]
+def read_waves(
+    patientid,
+    dtbegin,
+    dtend,
+    labels=[],
+    uri=None,
 ) -> Optional[pd.DataFrame]:
     q = build_wave_query(dtbegin, dtend, patientid)
     if labels:
         q = q.where(column('Label').in_(labels))
-    df = run_wave_query(conn, q)
+    if not uri:
+        uri = dwcuri
+    engine = create_engine(uri)
+    with engine.connect() as conn:
+        df = run_wave_query(conn, q)
     return df
 
 
