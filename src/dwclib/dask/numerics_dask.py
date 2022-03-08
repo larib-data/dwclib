@@ -64,7 +64,7 @@ def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
     if len(df) == 0:
         return dfmeta
     else:
-        df.index = pd.to_datetime(df.index, utc=True)
+        df.index = pd.to_datetime(df.index, utc=True).to_numpy(dtype='datetime64[ns]')
         return df.astype(dfmeta.dtypes.to_dict(), copy=False)
 
 
