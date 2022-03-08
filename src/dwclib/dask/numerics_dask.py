@@ -60,11 +60,11 @@ def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
-        df = df.tz_localize(None)
     engine.dispose()
     if len(df) == 0:
         return dfmeta
     else:
+        df.index = pd.to_datetime(df.index, utc=True)
         return df.astype(dfmeta.dtypes.to_dict(), copy=False)
 
 

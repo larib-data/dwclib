@@ -57,5 +57,5 @@ def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
         values='Value',
         aggfunc=np.nanmax,
     )
-    df.index = df.index.astype('datetime64[ns]')
+    df.index = pd.to_datetime(df.index, utc=True)
     return df

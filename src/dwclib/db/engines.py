@@ -9,12 +9,6 @@ try:
 except (ImportError, IndexError):
     odbcdriver = None
 
-from sqlalchemy import MetaData
-from sqlalchemy import Table
-from sqlalchemy import Text
-from sqlalchemy import cast
-from sqlalchemy import create_engine
-from sqlalchemy import select
 from sqlalchemy.engine import URL
 
 configfilename = '.dwclibrc'
@@ -38,15 +32,3 @@ pguri = URL.create(
     host=config.get('dwcmeta', 'host'),
     database=config.get('dwcmeta', 'dbname'),
 )
-
-# pgdb = create_engine(pguri)
-# pgmeta = MetaData(bind=pgdb)
-#
-# patientst = Table('patients', pgmeta, autoload_with=pgdb)
-# plabelst = Table('patientlabels', pgmeta, autoload_with=pgdb)
-#
-# p = patientst.c
-# pl = plabelst.c
-# plpatientst = select([patientst, pl.numericlabels, pl.wavelabels]).select_from(
-#    patientst.join(plabelst, cast(pl.patientid, Text) == p.patientid, isouter=True)
-# )

@@ -85,7 +85,7 @@ def unfold_row(basetime, bytesamples, period, cau, cal, csu, csl) -> pd.Series:
     # Generate millisecond index
     timestamps = basetime + period * np.arange(len(realvals))
     # Convert to datetime[64]
-    timestamps = timestamps.astype('M8[ms]')
+    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True)
     return pd.Series(realvals, index=timestamps)
 
 
