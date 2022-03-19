@@ -1,28 +1,9 @@
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+from dwclib.waves.wave_unfold import unfold_row
+
+import dask.dataframe as dd
 from dask.dataframe.utils import make_meta
-
-from dwclib.waves.wave_unfold import wave_unfold
-
-
-def unfold_row(row: pd.Series) -> pd.Series:
-    basetime = 1000 * row.name[0].timestamp()
-    msperiod = row['SamplePeriod']
-    bytesamples = row['WaveSamples']
-    calibs = [row[x] for x in ['CAU', 'CAL', 'CSU', 'CSL']]
-    noscale = any([x is None for x in calibs])
-    if noscale:
-        realvals = wave_unfold(bytesamples, False, 0, 0, 0, 0)
-    else:
-        realvals = wave_unfold(bytesamples, True, *calibs)
-    # Generate millisecond index
-    timestamps = basetime + msperiod * np.arange(len(realvals))
-    # Convert to datetime[64]
-    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True).to_numpy(
-        dtype='datetime64[ns]'
-    )
-    return pd.Series(realvals, index=timestamps)
 
 
 def unfold_pandas_dataframe(df, columns):

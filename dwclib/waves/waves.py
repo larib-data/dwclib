@@ -1,64 +1,41 @@
 from collections import defaultdict
+from datetime import datetime
 from multiprocessing.pool import ThreadPool
-from typing import Optional
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import column
-from sqlalchemy import create_engine
-from sqlalchemy import func
-from sqlalchemy import select
-
 from dwclib.db.engines import dwcuri
+from dwclib.db.waves_query import build_waves_query
 from dwclib.waves.wave_unfold import wave_unfold
+from sqlalchemy import column, create_engine
 
 
 def read_waves(
-    patientid,
-    dtbegin,
-    dtend,
-    labels=[],
-    uri=None,
+    patientid: str,
+    dtbegin: Union[str, datetime],
+    dtend: Union[str, datetime],
+    labels: List[str] = [],
+    uri: str = None,
 ) -> Optional[pd.DataFrame]:
-    q = build_wave_query(dtbegin, dtend, patientid)
-    if labels:
-        q = q.where(column('Label').in_(labels))
     if not uri:
         uri = dwcuri
     engine = create_engine(uri)
+    q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
     with engine.connect() as conn:
         df = run_wave_query(conn, q)
     return df
-
-
-def build_wave_query(dtbegin, dtend, patientid):
-    columns = [
-        'DateTime',
-        'PatientId',
-        'Label',
-        'Samples',
-        'PeriodMs',
-        'CAU',
-        'CAL',
-        'CSU',
-        'CSL',
-    ]
-    q = select([column(c) for c in columns])
-    q = q.select_from(func.LrbWaveChunksForPeriod(dtbegin, dtend))
-    if patientid:
-        q = q.where(column('PatientId') == patientid)
-    return q
 
 
 def run_wave_query(conn, q) -> Optional[pd.DataFrame]:
     res = conn.execute(q)
     databuffer = defaultdict(list)
     for row in res:
-        basetime = 1000 * row['DateTime'].timestamp()
+        basetime = 1000 * row['TimeStamp'].timestamp()
         srow = unfold_row(
             basetime,
-            row['Samples'],
-            int(row['PeriodMs']),
+            row['WaveSamples'],
+            int(row['SamplePeriod']),
             row['CAU'],
             row['CAL'],
             row['CSU'],

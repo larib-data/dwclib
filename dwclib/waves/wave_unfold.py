@@ -1,5 +1,26 @@
 import numpy as np
+import pandas as pd
+from dwclib.waves.wave_unfold import wave_unfold
 from numba import njit
+
+
+def unfold_row(row: pd.Series) -> pd.Series:
+    basetime = 1000 * row.name[0].timestamp()
+    msperiod = row['SamplePeriod']
+    bytesamples = row['WaveSamples']
+    calibs = [row[x] for x in ['CAU', 'CAL', 'CSU', 'CSL']]
+    noscale = any([x is None for x in calibs])
+    if noscale:
+        realvals = wave_unfold(bytesamples, False, 0, 0, 0, 0)
+    else:
+        realvals = wave_unfold(bytesamples, True, *calibs)
+    # Generate millisecond index
+    timestamps = basetime + msperiod * np.arange(len(realvals))
+    # Convert to datetime[64]
+    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True).to_numpy(
+        dtype='datetime64[ns]'
+    )
+    return pd.Series(realvals, index=timestamps)
 
 
 @njit
@@ -15,31 +36,3 @@ def wave_unfold(
         b = 0
     outdata = m * npindata.astype(np.float32) + b
     return outdata
-
-
-if __name__ == '__main__':
-    indata = b'\xff\x03\xff\x03\xff\x03\xff\x03\xff\x03\xff\x03\xff\x03'
-    cau = 1.0
-    cal = 0.0
-    csu = 2282
-    csl = 1815
-    expect_out = np.array(
-        [
-            -1.6959312,
-            -1.6959312,
-            -1.6959312,
-            -1.6959312,
-            -1.6959312,
-            -1.6959312,
-            -1.6959312,
-        ],
-        'float32',
-    )
-
-    outlen = int(len(indata) / 2)
-    # outdata = np.empty(outlen, dtype='float32')
-    outdata = wave_unfold(indata, cau, cal, csu, csl)
-    print(f'Input data: {indata}')
-    print(f'Output data: {outdata}')
-    print(f'Expected output: {expect_out}')
-    assert np.array_equal(outdata, expect_out)

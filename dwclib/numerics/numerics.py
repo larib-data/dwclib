@@ -1,48 +1,32 @@
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import column
-from sqlalchemy import create_engine
-from sqlalchemy import func
-from sqlalchemy import select
-
 from dwclib.db.engines import dwcuri
+from dwclib.db.numerics_query import build_numerics_query
+from pandas.api.types import is_list_like
+from sqlalchemy import column, create_engine
 
 
 def read_numerics(
-    patientids,
-    dtbegin,
-    dtend,
-    labels=[],
-    uri=None,
-) -> Optional[pd.DataFrame]:
-    q = build_numerics_query(dtbegin, dtend, patientids)
-    if labels:
-        q = q.where(column('Label').in_(labels))
+    patientids: Union[str, List[str]],
+    dtbegin: Union[str, datetime],
+    dtend: Union[str, datetime],
+    labels: List[str] = [],
+    uri: Optional[str] = None,
+) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
     engine = create_engine(uri)
+    q = build_numerics_query(engine, dtbegin, dtend, patientids, labels)
     with engine.connect() as conn:
         df = run_numerics_query(conn, q)
-    if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
+    # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
+    if not is_list_like(patientids):
         # Only 1 patient
         df.columns = df.columns.droplevel(0)
     return df
-
-
-def build_numerics_query(dtbegin, dtend, patientids):
-    columns = [
-        'DateTime',
-        'PatientId',
-        'Label',
-        'Value',
-    ]
-    q = select([column(c) for c in columns])
-    q = q.select_from(func.LrbNumericsForPeriod(dtbegin, dtend))
-    if patientids:
-        q = q.where(column('PatientId').in_(patientids))
-    return q
 
 
 def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
@@ -52,8 +36,8 @@ def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
         return df
     df['Value'] = df['Value'].astype('float32')
     df = df.pivot_table(
-        index='DateTime',
-        columns=['PatientId', 'Label'],
+        index=df.index,
+        columns=['PatientId', 'SubLabel'],
         values='Value',
         aggfunc=np.nanmax,
     )
