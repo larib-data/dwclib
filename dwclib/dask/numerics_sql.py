@@ -2,7 +2,7 @@ from datetime import timedelta
 from itertools import count
 
 import pandas as pd
-from dwclib.db.numerics_query import build_numerics_query
+from dwclib.common.numerics_query import build_numerics_query
 from sqlalchemy import MetaData, Table, create_engine, join, select
 
 import dask.dataframe as dd

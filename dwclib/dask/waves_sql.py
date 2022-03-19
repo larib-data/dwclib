@@ -2,7 +2,7 @@ from datetime import timedelta
 from itertools import count
 
 import pandas as pd
-from dwclib.db.waves_query import build_waves_query
+from dwclib.common.waves_query import build_waves_query
 from sqlalchemy import create_engine
 
 import dask.dataframe as dd

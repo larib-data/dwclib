@@ -5,8 +5,8 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from dwclib.db.engines import dwcuri
-from dwclib.db.waves_query import build_waves_query
+from dwclib.common.engines import dwcuri
+from dwclib.common.waves_query import build_waves_query
 from dwclib.waves.wave_unfold import wave_unfold
 from sqlalchemy import column, create_engine
 

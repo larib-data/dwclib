@@ -3,8 +3,8 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from dwclib.db.engines import dwcuri
-from dwclib.db.numerics_query import build_numerics_query
+from dwclib.common.engines import dwcuri
+from dwclib.common.numerics_query import build_numerics_query
 from pandas.api.types import is_list_like
 from sqlalchemy import column, create_engine
 

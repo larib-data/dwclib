@@ -9,7 +9,7 @@ from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy import select
 
-from dwclib.db import engines
+from dwclib.common import engines
 
 
 def read_patients(
