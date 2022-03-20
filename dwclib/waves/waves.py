@@ -5,6 +5,7 @@ from typing import List, Optional, Union
 
 import pandas as pd
 from dwclib.common.db import dwcuri
+from dwclib.common.meta import waves_meta
 from dwclib.common.wave_unfold import unfold_row
 from dwclib.common.waves import run_waves_query
 
@@ -15,20 +16,20 @@ def read_waves(
     dtend: Union[str, datetime],
     labels: List[str] = [],
     uri: str = None,
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
     df = run_waves_query(uri, dtbegin, dtend, patientid, labels)
     return unfold_pandas_dataframe(df)
 
 
-def unfold_pandas_dataframe(df: pd.DataFrame) -> Optional[pd.DataFrame]:
+def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     databuffer = defaultdict(list)
     for row in df:
         srow = unfold_row(row)
         databuffer[row['Label']].append(srow)
     if not databuffer:
-        return None
+        return waves_meta
     concatter = dictconcatter(databuffer)
     with ThreadPool() as pool:
         pool.map(concatter, databuffer.keys())

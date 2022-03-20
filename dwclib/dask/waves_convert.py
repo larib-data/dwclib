@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -21,7 +21,7 @@ def unfold_pandas_dataframe(df: pd.DataFrame, columns: List[str]) -> pd.DataFram
 
 
 def convert_dataframe(
-    ddf: dd.DataFrame, labels: List[str] = None, npartitions: int = None
+    ddf: dd.DataFrame, labels: List[str] = [], npartitions: Optional[int] = None
 ) -> dd.DataFrame:
     if not labels:
         labels = ddf['Label'].unique().compute()

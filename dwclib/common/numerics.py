@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List, Union
+
 import pandas as pd
 from dwclib.common.meta import numerics_meta
 from dwclib.common.numerics import build_numerics_query
@@ -6,8 +9,13 @@ from sqlalchemy import MetaData, Table, create_engine, join, select
 
 
 def run_numerics_query(
-    uri, dtbegin, dtend, patientids=[], labels=[], naive_datetime=False
-):
+    uri: str,
+    dtbegin: Union[str, datetime],
+    dtend: Union[str, datetime],
+    patientids: Union[str, List[str]] = [],
+    labels: List[str] = [],
+    naive_datetime: bool = False,
+) -> pd.DataFrame:
     engine = create_engine(uri)
     q = build_numerics_query(engine, dtbegin, dtend, patientids, labels)
 
@@ -46,7 +54,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids=[], labels=[]):
         if is_list_like(patientids):
             nv = nv.where(nvt.c.PatientId.in_(patientids))
         else:
-            nv = nv.where(nvt.c.PatientId.in_ == patientids)
+            nv = nv.where(nvt.c.PatientId == patientids)
     nv = nv.cte('NumericValue')
 
     j = join(nv, nn, nv.c.NumericId == nn.c.Id)
