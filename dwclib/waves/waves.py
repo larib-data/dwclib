@@ -3,12 +3,10 @@ from datetime import datetime
 from multiprocessing.pool import ThreadPool
 from typing import List, Optional, Union
 
-import numpy as np
 import pandas as pd
-from dwclib.common.engines import dwcuri
-from dwclib.common.waves_query import build_waves_query
-from dwclib.waves.wave_unfold import wave_unfold
-from sqlalchemy import column, create_engine
+from dwclib.common.db import dwcuri
+from dwclib.common.wave_unfold import unfold_row
+from dwclib.common.waves import run_waves_query
 
 
 def read_waves(
@@ -20,50 +18,21 @@ def read_waves(
 ) -> Optional[pd.DataFrame]:
     if not uri:
         uri = dwcuri
-    engine = create_engine(uri)
-    q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
-    with engine.connect() as conn:
-        df = run_wave_query(conn, q)
-    return df
+    df = run_waves_query(uri, dtbegin, dtend, patientid, labels)
+    return unfold_pandas_dataframe(df)
 
 
-def run_wave_query(conn, q) -> Optional[pd.DataFrame]:
-    res = conn.execute(q)
+def unfold_pandas_dataframe(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     databuffer = defaultdict(list)
-    for row in res:
-        basetime = 1000 * row['TimeStamp'].timestamp()
-        srow = unfold_row(
-            basetime,
-            row['WaveSamples'],
-            int(row['SamplePeriod']),
-            row['CAU'],
-            row['CAL'],
-            row['CSU'],
-            row['CSL'],
-        )
+    for row in df:
+        srow = unfold_row(row)
         databuffer[row['Label']].append(srow)
     if not databuffer:
         return None
     concatter = dictconcatter(databuffer)
     with ThreadPool() as pool:
         pool.map(concatter, databuffer.keys())
-    df = pd.DataFrame(databuffer)
-    return df
-
-
-def unfold_row(basetime, bytesamples, period, cau, cal, csu, csl) -> pd.Series:
-    calibs = [cau, cal, csu, csl]
-    doscale = not any([x is None for x in calibs])
-    if doscale:
-        cau, cal, csu, csl = (float(x) for x in calibs)
-    else:
-        cau, cal, csu, csl = (0, 0, 0, 0)
-    realvals = wave_unfold(bytesamples, doscale, cau, cal, csu, csl)
-    # Generate millisecond index
-    timestamps = basetime + period * np.arange(len(realvals))
-    # Convert to datetime[64]
-    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True)
-    return pd.Series(realvals, index=timestamps)
+    return pd.DataFrame(databuffer)
 
 
 def dictconcatter(d) -> pd.DataFrame:

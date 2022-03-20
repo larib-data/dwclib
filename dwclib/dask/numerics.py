@@ -1,6 +1,7 @@
 from datetime import timedelta
 
-from ..db.engines import dwcuri
+from dwclib.common.db import dwcuri
+
 from .numerics_dask import read_numerics as read_numerics_dask
 from .numerics_sql import read_numerics as read_numerics_sql
 

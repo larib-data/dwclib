@@ -3,10 +3,9 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from dwclib.common.engines import dwcuri
-from dwclib.common.numerics_query import build_numerics_query
+from dwclib.common.db import dwcuri
+from dwclib.common.numerics import run_numerics_query
 from pandas.api.types import is_list_like
-from sqlalchemy import column, create_engine
 
 
 def read_numerics(
@@ -18,10 +17,8 @@ def read_numerics(
 ) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
-    engine = create_engine(uri)
-    q = build_numerics_query(engine, dtbegin, dtend, patientids, labels)
-    with engine.connect() as conn:
-        df = run_numerics_query(conn, q)
+    df = run_numerics_query(uri, dtbegin, dtend, patientids, labels)
+    df = pivot_numerics(df)
     # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
     if not is_list_like(patientids):
         # Only 1 patient
@@ -29,8 +26,7 @@ def read_numerics(
     return df
 
 
-def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
-    df = pd.read_sql(q, conn)
+def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
         return df
@@ -41,5 +37,5 @@ def run_numerics_query(conn, q) -> Optional[pd.DataFrame]:
         values='Value',
         aggfunc=np.nanmax,
     )
-    df.index = pd.to_datetime(df.index, utc=True)
+    # df.index = pd.to_datetime(df.index, utc=True)
     return df

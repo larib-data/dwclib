@@ -1,4 +1,22 @@
-from sqlalchemy import MetaData, Table, join, select
+import pandas as pd
+from dwclib.common.meta import waves_meta
+from dwclib.common.waves import build_waves_query
+from sqlalchemy import MetaData, Table, create_engine, join, select
+
+
+def run_waves_query(uri, dtbegin, dtend, patientid, labels=[], naive_datetime=False):
+    engine = create_engine(uri)
+    q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
+
+    with engine.connect() as conn:
+        df = pd.read_sql(q, conn, index_col='TimeStamp')
+    engine.dispose()
+    if len(df) == 0:
+        return waves_meta
+    else:
+        dtidx = pd.to_datetime(df.index, utc=True)
+        df.index = dtidx.to_numpy(dtype='datetime64[ns]') if naive_datetime else dtidx
+        return df.astype(waves_meta.dtypes.to_dict(), copy=False)
 
 
 def build_waves_query(engine, dtbegin, dtend, patientid, labels=[]):

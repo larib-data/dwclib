@@ -1,6 +1,7 @@
 from datetime import timedelta
 
-from ..db.engines import dwcuri
+from dwclib.common.db import dwcuri
+
 from .waves_convert import convert_dataframe
 from .waves_sql import read_wave_chunks
 

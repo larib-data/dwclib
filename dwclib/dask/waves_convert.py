@@ -1,12 +1,14 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
-from dwclib.waves.wave_unfold import unfold_row
+from dwclib.common.wave_unfold import unfold_row
 
 import dask.dataframe as dd
 from dask.dataframe.utils import make_meta
 
 
-def unfold_pandas_dataframe(df, columns):
+def unfold_pandas_dataframe(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     idx = pd.MultiIndex.from_arrays(
         [df.index, df['Label']], names=('TimeStamp', 'Label')
     )
@@ -18,7 +20,9 @@ def unfold_pandas_dataframe(df, columns):
     return result.reindex(sorted(result.columns), axis=1)
 
 
-def convert_dataframe(ddf: dd.DataFrame, labels=None, npartitions=None) -> dd.DataFrame:
+def convert_dataframe(
+    ddf: dd.DataFrame, labels: List[str] = None, npartitions: int = None
+) -> dd.DataFrame:
     if not labels:
         labels = ddf['Label'].unique().compute()
     labels = sorted(set(labels))

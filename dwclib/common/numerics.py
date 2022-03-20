@@ -1,5 +1,25 @@
+import pandas as pd
+from dwclib.common.meta import numerics_meta
+from dwclib.common.numerics import build_numerics_query
 from pandas.api.types import is_list_like
-from sqlalchemy import MetaData, Table, join, select
+from sqlalchemy import MetaData, Table, create_engine, join, select
+
+
+def run_numerics_query(
+    uri, dtbegin, dtend, patientids=[], labels=[], naive_datetime=False
+):
+    engine = create_engine(uri)
+    q = build_numerics_query(engine, dtbegin, dtend, patientids, labels)
+
+    with engine.connect() as conn:
+        df = pd.read_sql(q, conn, index_col='TimeStamp')
+    engine.dispose()
+    if len(df) == 0:
+        return numerics_meta
+    else:
+        dtidx = pd.to_datetime(df.index, utc=True)
+        df.index = dtidx.to_numpy(dtype='datetime64[ns]') if naive_datetime else dtidx
+        return df.astype(numerics_meta.dtypes.to_dict(), copy=False)
 
 
 def build_numerics_query(engine, dtbegin, dtend, patientids=[], labels=[]):
