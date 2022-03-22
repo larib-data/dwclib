@@ -1,17 +1,17 @@
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from dwclib.common.db import pguri
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
 
-def read_patient(*args, **kwargs):
+def read_patient(*args, **kwargs) -> Optional[pd.Series]:
     res = _read_patients(*args, **kwargs, limit=1)
     if len(res):
         return res.iloc[0]
 
 
-def read_patients(*args, **kwargs):
+def read_patients(*args, **kwargs) -> pd.DataFrame:
     return _read_patients(*args, **kwargs)
 
 
