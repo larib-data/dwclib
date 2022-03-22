@@ -4,7 +4,9 @@ Python wrapper to DataWarehouse Connect.
 
 ## Installation
 `pip install dwclib`
+
 You can also install the in-development version with:
+
 `pip install https://framagit.org/jaj/dwclib/-/archive/master/dwclib-master.zip`
 
 ## Changelog
