@@ -3,7 +3,7 @@ import pandas as pd
 from numba import njit
 
 
-def unfold_row(row: pd.Series) -> pd.Series:
+def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
     basetime = 1000 * row.name.timestamp()
     msperiod = row['SamplePeriod']
     bytesamples = row['WaveSamples']
@@ -16,9 +16,9 @@ def unfold_row(row: pd.Series) -> pd.Series:
     # Generate millisecond index
     timestamps = basetime + msperiod * np.arange(len(realvals))
     # Convert to datetime[64]
-    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True).to_numpy(
-        dtype='datetime64[ns]'
-    )
+    timestamps = pd.to_datetime(timestamps, unit='ms', utc=True)
+    if naive_datetime:
+        timestamps = timestamps.to_numpy(dtype='datetime64[ns]')
     return pd.Series(realvals, index=timestamps)
 
 

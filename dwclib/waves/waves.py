@@ -26,7 +26,7 @@ def read_waves(
 def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     databuffer = defaultdict(list)
     for _, row in df.iterrows():
-        srow = unfold_row(row)
+        srow = unfold_row(row, naive_datetime=False)
         databuffer[row['Label']].append(srow)
     if not databuffer:
         return waves_meta_tz
