@@ -38,5 +38,4 @@ def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
         values='Value',
         aggfunc=np.nanmax,
     )
-    # df.index = pd.to_datetime(df.index, utc=True)
     return df

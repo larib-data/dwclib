@@ -4,6 +4,7 @@ from numba import njit
 
 
 def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
+    # XXX unify following line once we use the same unfold_row function for pandas and dask
     begintime = row.name[0] if isinstance(row.name, tuple) else row.name
     basetime = 1000 * begintime.timestamp()
     msperiod = row['SamplePeriod']
