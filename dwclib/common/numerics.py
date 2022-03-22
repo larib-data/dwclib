@@ -3,7 +3,6 @@ from typing import List, Union
 
 import pandas as pd
 from dwclib.common.meta import numerics_meta, numerics_meta_tz
-from dwclib.common.numerics import build_numerics_query
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
 
