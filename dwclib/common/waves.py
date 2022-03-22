@@ -1,6 +1,5 @@
 import pandas as pd
 from dwclib.common.meta import waves_meta
-from dwclib.common.waves import build_waves_query
 from sqlalchemy import MetaData, Table, create_engine, join, select
 
 
