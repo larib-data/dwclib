@@ -1,15 +1,8 @@
 from typing import List
 
 import pandas as pd
-from sqlalchemy import MetaData
-from sqlalchemy import Table
-from sqlalchemy import asc
-from sqlalchemy import create_engine
-from sqlalchemy import func
-from sqlalchemy import or_
-from sqlalchemy import select
-
-from dwclib.common import engines
+from dwclib.common.db import pguri
+from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
 
 def read_patients(
@@ -25,7 +18,7 @@ def read_patients(
     uri=None,
 ):
     if not uri:
-        uri = engines.pguri
+        uri = pguri
     q = build_query(
         uri,
         patientid,
