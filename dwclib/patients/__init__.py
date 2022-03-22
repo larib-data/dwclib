@@ -1,1 +1,1 @@
-from .patients import read_patients
+from .patients import read_patient, read_patients
