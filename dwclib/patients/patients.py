@@ -5,7 +5,17 @@ from dwclib.common.db import pguri
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
 
-def read_patients(
+def read_patient(*args, **kwargs):
+    res = _read_patients(*args, **kwargs, limit=1)
+    if len(res):
+        return res.iloc[0]
+
+
+def read_patients(*args, **kwargs):
+    return _read_patients(*args, **kwargs)
+
+
+def _read_patients(
     patientid: str = None,
     name: str = None,
     ipp: str = None,
@@ -16,6 +26,7 @@ def read_patients(
     wavelabels: List[str] = [],
     numericlabels: List[str] = [],
     uri=None,
+    limit=None,
 ):
     if not uri:
         uri = pguri
@@ -31,6 +42,8 @@ def read_patients(
         wavelabels,
         numericlabels,
     )
+    if limit:
+        q = q.limit(limit)
     engine = create_engine(uri)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='patientid')
