@@ -2,7 +2,7 @@ from datetime import timedelta
 from itertools import count
 
 from dwclib.common.meta import numerics_meta
-from dwclib.common.numerics_query import run_numerics_query
+from dwclib.common.numerics import run_numerics_query
 
 import dask.dataframe as dd
 from dask import delayed
