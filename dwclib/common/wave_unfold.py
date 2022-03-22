@@ -4,7 +4,7 @@ from numba import njit
 
 
 def unfold_row(row: pd.Series) -> pd.Series:
-    basetime = 1000 * row.name[0].timestamp()
+    basetime = 1000 * row.name.timestamp()
     msperiod = row['SamplePeriod']
     bytesamples = row['WaveSamples']
     calibs = [row[x] for x in ['CAU', 'CAL', 'CSU', 'CSL']]
