@@ -25,7 +25,7 @@ def read_waves(
 
 def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     databuffer = defaultdict(list)
-    for row in df:
+    for _, row in df.iterrows():
         srow = unfold_row(row)
         databuffer[row['Label']].append(srow)
     if not databuffer:
