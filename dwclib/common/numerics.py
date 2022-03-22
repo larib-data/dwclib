@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Union
 
 import pandas as pd
-from dwclib.common.meta import numerics_meta
+from dwclib.common.meta import numerics_meta, numerics_meta_tz
 from dwclib.common.numerics import build_numerics_query
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
@@ -23,7 +23,7 @@ def run_numerics_query(
         df = pd.read_sql(q, conn, index_col='TimeStamp')
     engine.dispose()
     if len(df) == 0:
-        return numerics_meta
+        return numerics_meta if naive_datetime else numerics_meta_tz
     else:
         dtidx = pd.to_datetime(df.index, utc=True)
         df.index = dtidx.to_numpy(dtype='datetime64[ns]') if naive_datetime else dtidx

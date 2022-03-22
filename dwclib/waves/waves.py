@@ -1,11 +1,11 @@
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
-from typing import List, Optional, Union
+from typing import List, Union
 
 import pandas as pd
 from dwclib.common.db import dwcuri
-from dwclib.common.meta import waves_meta
+from dwclib.common.meta import waves_meta_tz
 from dwclib.common.wave_unfold import unfold_row
 from dwclib.common.waves import run_waves_query
 
@@ -29,7 +29,7 @@ def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         srow = unfold_row(row)
         databuffer[row['Label']].append(srow)
     if not databuffer:
-        return waves_meta
+        return waves_meta_tz
     concatter = dictconcatter(databuffer)
     with ThreadPool() as pool:
         pool.map(concatter, databuffer.keys())

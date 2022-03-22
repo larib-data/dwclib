@@ -2,8 +2,9 @@ import pandas as pd
 from dask.dataframe.utils import make_meta
 
 
-def build_numerics_meta():
-    idx = pd.DatetimeIndex([], name='TimeStamp')
+def build_numerics_meta(naive_datetime=True):
+    tz = None if naive_datetime else 'UTC'
+    idx = pd.DatetimeIndex([], name='TimeStamp', tz=tz)
     dtypes = {
         'PatientId': 'string',
         'SubLabel': 'string',
@@ -14,8 +15,9 @@ def build_numerics_meta():
     return make_meta(mdf)
 
 
-def build_waves_meta():
-    idx = pd.DatetimeIndex([], name='TimeStamp')
+def build_waves_meta(naive_datetime=True):
+    tz = None if naive_datetime else 'UTC'
+    idx = pd.DatetimeIndex([], name='TimeStamp', tz=tz)
     dtypes = {
         'PatientId': 'string',
         'Label': 'string',
@@ -32,4 +34,6 @@ def build_waves_meta():
 
 
 numerics_meta = build_numerics_meta()
+numerics_meta_tz = build_numerics_meta(naive_datetime=False)
 waves_meta = build_waves_meta()
+waves_meta_tz = build_waves_meta(naive_datetime=False)

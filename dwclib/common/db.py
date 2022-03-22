@@ -4,7 +4,7 @@ from pathlib import Path
 try:
     import pyodbc
 
-    pyodbc.pooling = False  # noqa: F841
+    pyodbc.pooling = False
     odbcdriver = pyodbc.drivers()[0]
 except (ImportError, IndexError):
     odbcdriver = None

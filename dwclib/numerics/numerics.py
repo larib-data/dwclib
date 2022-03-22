@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 import numpy as np
 import pandas as pd
 from dwclib.common.db import dwcuri
+from dwclib.common.meta import numerics_meta_tz
 from dwclib.common.numerics import run_numerics_query
 from pandas.api.types import is_list_like
 
@@ -29,7 +30,7 @@ def read_numerics(
 def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
-        return df
+        numerics_meta_tz
     df['Value'] = df['Value'].astype('float32')
     df = df.pivot_table(
         index=df.index,
