@@ -1,14 +1,12 @@
 from datetime import timedelta
 from itertools import count
 
-import dask.dataframe as dd
 import pandas as pd
+from sqlalchemy import MetaData, Table, create_engine, select
+
+import dask.dataframe as dd
 from dask import delayed
 from dask.dataframe.utils import make_meta
-from sqlalchemy import MetaData
-from sqlalchemy import Table
-from sqlalchemy import create_engine
-from sqlalchemy import select
 
 
 def build_metas():

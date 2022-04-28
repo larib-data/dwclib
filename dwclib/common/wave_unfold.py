@@ -28,7 +28,9 @@ def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
 def wave_unfold(
     indata: bytes, doscale: bool, cau: float, cal: float, csu: int, csl: int
 ):
-    npindata = np.frombuffer(indata, dtype=np.int16)
+    count = len(indata) // 2
+    int16le = np.dtype('<i2')
+    npindata = np.frombuffer(indata, dtype=int16le, count=count)
     if doscale:
         m = (cau - cal) / (csu - csl)
         b = cau - m * csu
