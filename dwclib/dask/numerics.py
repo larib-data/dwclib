@@ -17,7 +17,6 @@ def read_numerics(
 ):
     if not uri:
         uri = dwcuri
-    assert joinengine in ['sql', 'dask']
     if joinengine == 'sql':
         return read_numerics_sql(
             patientids,
@@ -27,7 +26,7 @@ def read_numerics(
             labels,
             interval,
         )
-    else:
+    elif joinengine == 'dask':
         return read_numerics_dask(
             patientids,
             dtbegin,
@@ -36,3 +35,5 @@ def read_numerics(
             labels,
             interval,
         )
+    else:
+        return None
