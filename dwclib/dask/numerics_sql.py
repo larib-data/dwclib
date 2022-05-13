@@ -7,6 +7,8 @@ from dwclib.common.numerics import run_numerics_query
 import dask.dataframe as dd
 from dask import delayed
 
+one_hour = timedelta(hours=1)
+
 
 def build_divisions(dtbegin, dtend, interval):
     ranges = []
@@ -21,14 +23,7 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def read_numerics(
-    patientids,
-    dtbegin,
-    dtend,
-    uri,
-    labels=[],
-    interval=timedelta(hours=1),
-):
+def read_numerics(patientids, dtbegin, dtend, uri, labels=[], interval=one_hour):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:

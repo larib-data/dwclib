@@ -5,13 +5,15 @@ from dwclib.common.db import dwcuri
 from .waves_convert import convert_dataframe
 from .waves_sql import read_wave_chunks
 
+one_hour = timedelta(hours=1)
+
 
 def read_waves(
     patientid,
     dtbegin,
     dtend,
     labels=[],
-    interval=timedelta(hours=1),
+    interval=one_hour,
     npartitions=None,
     uri=None,
 ):

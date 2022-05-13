@@ -39,6 +39,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids=[], labels=[]):
     )
 
     nn = select(nnt.c.TimeStamp, nnt.c.Id, nnt.c.SubLabel)
+    nn = nn.with_hint(nnt, 'WITH (NOLOCK)')
     nn = nn.where(nnt.c.TimeStamp >= dtbegin)
     nn = nn.where(nnt.c.TimeStamp < dtend)
     if labels:
@@ -46,6 +47,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids=[], labels=[]):
     nn = nn.cte('Numeric')
 
     nv = select(nvt.c.TimeStamp, nvt.c.NumericId, nvt.c.Value, nvt.c.PatientId)
+    nv = nv.with_hint(nvt, 'WITH (NOLOCK)')
     nv = nv.where(nvt.c.TimeStamp >= dtbegin)
     nv = nv.where(nvt.c.TimeStamp < dtend)
     nv = nv.where(nvt.c.Value is not None)

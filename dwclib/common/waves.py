@@ -35,6 +35,7 @@ def build_waves_query(engine, dtbegin, dtend, patientid, labels=[]):
         wwt.c.CalibrationScaledUpper.label('CSU'),
         wwt.c.CalibrationScaledLower.label('CSL'),
     )
+    ww = ww.with_hint(wwt, 'WITH (NOLOCK)')
     ww = ww.where(wwt.c.TimeStamp >= dtbegin)
     ww = ww.where(wwt.c.TimeStamp < dtend)
     if labels:
@@ -42,6 +43,7 @@ def build_waves_query(engine, dtbegin, dtend, patientid, labels=[]):
     ww = ww.cte('Wave')
 
     ws = select(wst.c.TimeStamp, wst.c.WaveId, wst.c.WaveSamples, wst.c.PatientId)
+    ws = ws.with_hint(wst, 'WITH (NOLOCK)')
     ws = ws.where(wst.c.TimeStamp >= dtbegin)
     ws = ws.where(wst.c.TimeStamp < dtend)
     ws = ws.where(wst.c.WaveSamples is not None)
