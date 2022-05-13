@@ -4,9 +4,10 @@ from typing import Any
 import nox
 from nox.sessions import Session
 
-locations = ["dwclib"]
-python_versions=['3.8']
+nox.options.sessions = "lint", "safety", "mypy"
 
+locations = ["dwclib"]
+python_versions = ['3.8']
 
 
 def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
@@ -34,16 +35,20 @@ def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> Non
         )
         session.install(f"--constraint={requirements.name}", *args, **kwargs)
 
+
 @nox.session(python=python_versions)
 def lint(session):
     args = session.posargs or locations
-    install_with_constraints(session,
+    install_with_constraints(
+        session,
         "flake8",
         "flake8-bandit",
+        "flake8-bugbear",
     )
     session.run("flake8", *args)
 
-@nox.session(python="3.8")
+
+@nox.session(python=python_versions)
 def safety(session: Session) -> None:
     """Scan dependencies for insecure packages."""
     with tempfile.NamedTemporaryFile() as requirements:
@@ -58,3 +63,10 @@ def safety(session: Session) -> None:
         )
         install_with_constraints(session, "safety")
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
+
+
+@nox.session(python=python_versions)
+def mypy(session):
+    args = session.posargs or locations
+    install_with_constraints(session, "mypy")
+    session.run("mypy", *args)
