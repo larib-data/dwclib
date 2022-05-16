@@ -8,6 +8,8 @@ import dask.dataframe as dd
 from dask import delayed
 from dask.dataframe.utils import make_meta
 
+one_hour = timedelta(hours=1)
+
 
 def build_metas():
     idx = pd.DatetimeIndex([], name='TimeStamp')
@@ -43,7 +45,7 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels=[]):
+def run_numerics_query(uri, dfmeta, dtbegin, dtend, labels):
     engine = create_engine(uri)
     dbmeta = MetaData(bind=engine)
     nnt = Table(
@@ -92,8 +94,8 @@ def read_numerics(
     dtbegin,
     dtend,
     uri,
-    labels=[],
-    interval=timedelta(hours=1),
+    labels,
+    interval=one_hour,
 ):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     meta_numerics, meta_numeric_values = build_metas()

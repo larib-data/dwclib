@@ -3,7 +3,7 @@ from dwclib.common.meta import waves_meta
 from sqlalchemy import MetaData, Table, create_engine, join, select
 
 
-def run_waves_query(uri, dtbegin, dtend, patientid, labels=[], naive_datetime=False):
+def run_waves_query(uri, dtbegin, dtend, patientid, labels, naive_datetime=False):
     engine = create_engine(uri)
     q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
 
@@ -18,7 +18,7 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels=[], naive_datetime=Fa
         return df.astype(waves_meta.dtypes.to_dict(), copy=False)
 
 
-def build_waves_query(engine, dtbegin, dtend, patientid, labels=[]):
+def build_waves_query(engine, dtbegin, dtend, patientid, labels):
     dbmeta = MetaData(bind=engine)
     wwt = Table('Wave_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
     wst = Table(

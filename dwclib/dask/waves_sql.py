@@ -7,6 +7,8 @@ from dwclib.common.waves import run_waves_query
 import dask.dataframe as dd
 from dask import delayed
 
+one_hour = timedelta(hours=1)
+
 
 def build_divisions(dtbegin, dtend, interval):
     ranges = []
@@ -26,8 +28,8 @@ def read_wave_chunks(
     dtbegin,
     dtend,
     uri,
-    labels=[],
-    interval=timedelta(hours=1),
+    labels,
+    interval=one_hour,
 ):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []

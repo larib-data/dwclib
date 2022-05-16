@@ -11,8 +11,8 @@ def run_numerics_query(
     uri: str,
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
-    patientids: Union[str, List[str]] = [],
-    labels: List[str] = [],
+    patientids: Union[str, List[str]],
+    labels: List[str],
     naive_datetime: bool = False,
 ) -> pd.DataFrame:
     engine = create_engine(uri)
@@ -29,7 +29,7 @@ def run_numerics_query(
         return df.astype(numerics_meta.dtypes.to_dict(), copy=False)
 
 
-def build_numerics_query(engine, dtbegin, dtend, patientids=[], labels=[]):
+def build_numerics_query(engine, dtbegin, dtend, patientids, labels):
     dbmeta = MetaData(bind=engine)
     nnt = Table(
         'Numeric_', dbmeta, schema='_Export', autoload=True, autoload_with=engine

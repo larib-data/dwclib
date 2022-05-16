@@ -23,7 +23,7 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def read_numerics(patientids, dtbegin, dtend, uri, labels=[], interval=one_hour):
+def read_numerics(patientids, dtbegin, dtend, uri, labels, interval=one_hour):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:

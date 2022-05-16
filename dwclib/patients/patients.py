@@ -23,13 +23,17 @@ def _read_patients(
     dtend: str = None,
     clinicalunit: str = None,
     bedlabel: str = None,
-    wavelabels: List[str] = [],
-    numericlabels: List[str] = [],
+    wavelabels: Optional[List[str]] = None,
+    numericlabels: Optional[List[str]] = None,
     uri=None,
     limit=None,
 ):
     if not uri:
         uri = pguri
+    if wavelabels is None:
+        wavelabels = []
+    if numericlabels is None:
+        numericlabels = []
     q = build_query(
         uri,
         patientid,

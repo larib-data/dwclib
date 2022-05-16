@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
-from typing import List, Union
+from typing import List, Optional, Union
 
 import pandas as pd
 from dwclib.common.db import dwcuri
@@ -14,11 +14,13 @@ def read_waves(
     patientid: str,
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
-    labels: List[str] = [],
+    labels: Optional[List[str]] = None,
     uri: str = None,
 ) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
+    if labels is None:
+        labels = []
     df = run_waves_query(uri, dtbegin, dtend, patientid, labels)
     return unfold_pandas_dataframe(df)
 

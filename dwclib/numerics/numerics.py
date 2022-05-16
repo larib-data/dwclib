@@ -13,11 +13,13 @@ def read_numerics(
     patientids: Union[str, List[str]],
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
-    labels: List[str] = [],
+    labels: Optional[List[str]] = None,
     uri: Optional[str] = None,
 ) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
+    if labels is None:
+        labels = []
     df = run_numerics_query(uri, dtbegin, dtend, patientids, labels)
     df = pivot_numerics(df)
     # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
