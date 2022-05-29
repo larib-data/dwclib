@@ -1,3 +1,4 @@
+from functools import partial
 from typing import List, Optional
 
 import numpy as np
@@ -8,12 +9,16 @@ import dask.dataframe as dd
 from dask.dataframe.utils import make_meta
 
 
-def unfold_pandas_dataframe(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+def unfold_pandas_dataframe(
+    df: pd.DataFrame, columns: List[str], meta: pd.DataFrame
+) -> pd.DataFrame:
     idx = pd.MultiIndex.from_arrays(
         [df.index, df['Label']], names=('TimeStamp', 'Label')
     )
     df = df.set_index(idx)
     unfolded = df.apply(unfold_row, axis=1)
+    if not len(unfolded):
+        return meta
     transposed = unfolded.droplevel(0).groupby(level=0).max().T
     missing_columns = set(columns) - set(transposed.columns)
     result = transposed.assign(**{c: np.nan for c in missing_columns})
@@ -32,4 +37,5 @@ def convert_dataframe(
     if not npartitions:
         npartitions = 20 * ddf.npartitions
     ddf = ddf.repartition(npartitions)
-    return ddf.map_partitions(unfold_pandas_dataframe, columns=labels, meta=meta)
+    unfold_func = partial(unfold_pandas_dataframe, meta=meta)
+    return ddf.map_partitions(unfold_func, columns=labels, meta=meta)
