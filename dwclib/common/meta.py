@@ -21,7 +21,7 @@ def build_waves_meta(naive_datetime=True):
     dtypes = {
         'PatientId': 'string',
         'Label': 'string',
-        'WaveSamples': 'bytes',
+        'WaveSamples': 'object',
         'SamplePeriod': 'int32',
         'CAU': 'float64',
         'CAL': 'float64',
