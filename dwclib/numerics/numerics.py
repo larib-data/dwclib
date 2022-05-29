@@ -33,7 +33,6 @@ def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
         numerics_meta_tz
-    df['Value'] = df['Value'].astype('float32')
     df = df.pivot_table(
         index=df.index,
         columns=['PatientId', 'SubLabel'],
