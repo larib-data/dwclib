@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dwclib"
-version = "2022.3.22"
+version = "2022.5.29"
 description = "Python wrapper to DataWarehouse Connect"
 authors = ["Jona Joachim <jona@joachim.cc>"]
 license = "ISC"
