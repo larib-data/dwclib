@@ -51,6 +51,8 @@ def _read_patients(
     engine = create_engine(uri)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='patientid')
+    df['data_begin'] = df['data_begin'].to_numpy(dtype='datetime64[ns]')
+    df['data_end'] = df['data_end'].to_numpy(dtype='datetime64[ns]')
     return df
 
 
