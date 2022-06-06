@@ -1,6 +1,8 @@
 from datetime import timedelta
 from itertools import count
 
+from dwclib.common.db import dwcuri
+
 import dask.dataframe as dd
 from dask import delayed
 
@@ -21,6 +23,8 @@ def build_divisions(dtbegin, dtend, interval):
 
 
 def read_data(runner, meta, patientids, dtbegin, dtend, uri, labels, interval=one_hour):
+    if not uri:
+        uri = dwcuri
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:

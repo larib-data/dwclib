@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import List, Optional
 
-from dwclib.common.db import dwcuri
 from dwclib.common.meta import waves_meta
 from dwclib.common.waves import run_waves_query
 from dwclib.dask.generic import read_data
@@ -20,8 +19,6 @@ def read_waves(
     npartitions=None,
     uri=None,
 ):
-    if not uri:
-        uri = dwcuri
     if labels is None:
         labels = []
     ddf = read_data(

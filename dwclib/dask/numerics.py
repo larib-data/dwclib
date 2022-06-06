@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import List, Optional
 
-from dwclib.common.db import dwcuri
 from dwclib.common.meta import numerics_meta
 from dwclib.common.numerics import run_numerics_query
 from dwclib.dask.generic import read_data
@@ -17,8 +16,6 @@ def read_numerics(
     interval=one_hour,
     uri=None,
 ):
-    if not uri:
-        uri = dwcuri
     if labels is None:
         labels = []
     return read_data(
