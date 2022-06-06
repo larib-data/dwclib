@@ -1,9 +1,6 @@
 from datetime import timedelta
 from itertools import count
 
-from dwclib.common.meta import numerics_meta
-from dwclib.common.numerics import run_numerics_query
-
 import dask.dataframe as dd
 from dask import delayed
 
@@ -23,12 +20,12 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def read_numerics(patientids, dtbegin, dtend, uri, labels, interval=one_hour):
+def read_data(runner, meta, patientids, dtbegin, dtend, uri, labels, interval=one_hour):
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:
         parts.append(
-            delayed(run_numerics_query)(
+            delayed(runner)(
                 uri,
                 begin,
                 end,
@@ -37,4 +34,4 @@ def read_numerics(patientids, dtbegin, dtend, uri, labels, interval=one_hour):
                 True,
             )
         )
-    return dd.from_delayed(parts, numerics_meta, divisions=divisions)
+    return dd.from_delayed(parts, meta, divisions=divisions)
