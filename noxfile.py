@@ -4,7 +4,7 @@ from typing import Any
 import nox
 from nox.sessions import Session
 
-nox.options.sessions = "lint", "safety"
+nox.options.sessions = "lint", "safety", "docs"
 
 locations = ["dwclib"]
 python_versions = ['3.8']
@@ -44,6 +44,8 @@ def lint(session):
         "flake8",
         "flake8-bandit",
         "flake8-bugbear",
+        "flake8-docstrings",
+        "darglint",
     )
     session.run("flake8", *args)
 
@@ -63,3 +65,11 @@ def safety(session: Session) -> None:
         )
         install_with_constraints(session, "safety")
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
+
+@nox.session(python=python_versions)
+def docs(session: Session) -> None:
+    """Build the documentation."""
+    session.run("poetry", "install", "--no-dev", external=True)
+    install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints")
+    session.run("sphinx-build", "docs", "docs/_build")
+
