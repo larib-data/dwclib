@@ -6,16 +6,12 @@ from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
 
 def read_patient(*args, **kwargs) -> Optional[pd.Series]:
-    res = _read_patients(*args, **kwargs, limit=1)
+    res = read_patients(*args, **kwargs, limit=1)
     if len(res):
         return res.iloc[0]
 
 
-def read_patients(*args, **kwargs) -> pd.DataFrame:
-    return _read_patients(*args, **kwargs)
-
-
-def _read_patients(
+def read_patients(
     patientid: str = None,
     name: str = None,
     ipp: str = None,
@@ -25,9 +21,29 @@ def _read_patients(
     bedlabel: str = None,
     wavelabels: Optional[List[str]] = None,
     numericlabels: Optional[List[str]] = None,
-    uri=None,
-    limit=None,
-):
+    uri: Optional[str] = None,
+    limit: Optional[int] = None,
+) -> pd.DataFrame:
+    """Reads patients from DWCmeta database.
+
+    Retrieves a pandas dataframe consisting of individual patients which match the search criteria.
+
+    Args:
+        patientid: A DWC patient identifier
+        name: A patient name
+        ipp: A patient lifetime identifier
+        dtbegin: The beginning of available data samples
+        dtend: The end of available data samples
+        clinicalunit: The clinical unit the patient belongs to
+        bedlabel: The bed / room in which the patient stays
+        wavelabels: A list of waveform labels
+        numericlabels: A list of numerics labels
+        uri: Optional sqlalchemy URI for the database if not provided in the config file
+        limit: Maximum number of returned results
+
+    Returns:
+        A pandas dataframe with each row corresponding to an individual patient stay, indexed by unique DWC patient identifiers.
+    """
     if not uri:
         uri = pguri
     if wavelabels is None:
