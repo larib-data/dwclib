@@ -4,12 +4,20 @@ Python wrapper to DataWarehouse Connect.
 
 ## Installation
 `pip install dwclib`
+`conda install -c conda-forge dwclib`
 
 You can also install the in-development version with:
 
 `pip install https://framagit.org/jaj/dwclib/-/archive/master/dwclib-master.zip`
 
 ## Changelog
+- 2022.6.23
+    - Convert packaging from flit to poetry
+    - Add linting and testing with nox, flake8 and safety
+    - Create scaffolding for future Sphinx documentation
+    - Fix a number of bugs in corner cases (division by zero, ...)
+    - Add a generic Dask wrapper to run custom DWC queries with Dask
+
 - 2022.3.22
     - Convert packaging from old-style setup.py to flit
     - Refactor: extract common code between dask and pandas version
