@@ -22,6 +22,14 @@ def read_waves(
     if labels is None:
         labels = []
     ddf = read_data(
-        run_waves_query, waves_meta, patientid, dtbegin, dtend, uri, labels, interval
+        run_waves_query,
+        waves_meta,
+        dtbegin,
+        dtend,
+        uri,
+        interval,
+        patientid=patientid,
+        labels=labels,
+        naive_datetime=True,
     )
     return convert_dataframe(ddf, labels, npartitions)

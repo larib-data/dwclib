@@ -22,20 +22,22 @@ def build_divisions(dtbegin, dtend, interval):
     return (ranges, divisions)
 
 
-def read_data(runner, meta, patientids, dtbegin, dtend, uri, labels, interval=one_hour):
+def read_data(
+    runner,
+    meta,
+    patientids,
+    dtbegin,
+    dtend,
+    uri,
+    labels,
+    interval=one_hour,
+    *args,
+    **kwargs,
+):
     if not uri:
         uri = dwcuri
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:
-        parts.append(
-            delayed(runner)(
-                uri,
-                begin,
-                end,
-                patientids,
-                labels,
-                True,
-            )
-        )
+        parts.append(delayed(runner)(uri, begin, end, *args, **kwargs))
     return dd.from_delayed(parts, meta, divisions=divisions)

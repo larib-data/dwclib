@@ -21,10 +21,11 @@ def read_numerics(
     return read_data(
         run_numerics_query,
         numerics_meta,
-        patientids,
         dtbegin,
         dtend,
         uri,
-        labels,
         interval,
+        patientids=patientids,
+        labels=labels,
+        naive_datetime=True,
     )
