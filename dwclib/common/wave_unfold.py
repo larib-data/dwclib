@@ -32,7 +32,7 @@ def wave_unfold(
         indata = indata[:-1]
     int16le = np.dtype('<i2')
     npindata = np.frombuffer(indata, dtype=int16le)
-    if doscale:
+    if doscale and (csu - csl) != 0:
         m = (cau - cal) / (csu - csl)
         b = cau - m * csu
     else:
