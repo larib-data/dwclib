@@ -7,15 +7,13 @@ from dwclib.dask.generic import read_data
 
 from .waves_convert import convert_dataframe
 
-one_hour = timedelta(hours=1)
-
 
 def read_waves(
     patientid,
     dtbegin,
     dtend,
     labels: Optional[List[str]] = None,
-    interval=one_hour,
+    interval=None,
     npartitions=None,
     uri=None,
 ):
