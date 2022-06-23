@@ -22,12 +22,12 @@ def read_waves(
     if labels is None:
         labels = []
     ddf = read_data(
-        run_waves_query,
-        waves_meta,
-        dtbegin,
-        dtend,
-        uri,
-        interval,
+        runner=run_waves_query,
+        meta=waves_meta,
+        dtbegin=dtbegin,
+        dtend=dtend,
+        uri=uri,
+        interval=interval,
         patientid=patientid,
         labels=labels,
         naive_datetime=True,

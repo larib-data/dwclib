@@ -25,11 +25,9 @@ def build_divisions(dtbegin, dtend, interval):
 def read_data(
     runner,
     meta,
-    patientids,
     dtbegin,
     dtend,
     uri,
-    labels,
     interval=one_hour,
     *args,
     **kwargs,
