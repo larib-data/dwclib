@@ -12,9 +12,9 @@ def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
     calibs = [row[x] for x in ['CAU', 'CAL', 'CSU', 'CSL']]
     noscale = any([x is None for x in calibs])
     if noscale:
-        realvals = wave_unfold(bytesamples, False, 0, 0, 0, 0)
+        realvals = wave_unfold(bytesamples, 0, 0, 0, 0)
     else:
-        realvals = wave_unfold(bytesamples, True, *calibs)
+        realvals = wave_unfold(bytesamples, *calibs)
     # Generate millisecond index
     timestamps = basetime + msperiod * np.arange(len(realvals))
     # Convert to datetime[64]
@@ -25,14 +25,12 @@ def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
 
 
 @njit
-def wave_unfold(
-    indata: bytes, doscale: bool, cau: float, cal: float, csu: int, csl: int
-):
+def wave_unfold(indata: bytes, cau: float, cal: float, csu: int, csl: int):
     if len(indata) % 2:
         indata = indata[:-1]
     int16le = np.dtype('<i2')
     npindata = np.frombuffer(indata, dtype=int16le)
-    if doscale and (csu - csl) != 0:
+    if (csu - csl) != 0:
         m = (cau - cal) / (csu - csl)
         b = cau - m * csu
     else:
