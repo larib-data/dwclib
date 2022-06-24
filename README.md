@@ -3,9 +3,11 @@ Python wrapper to DataWarehouse Connect.
 -   Free software: ISC license
 
 ## Installation
-`pip install dwclib`
 `conda install -c conda-forge dwclib`
 
+`pip install dwclib`
+
+Installation through conda greatly simplifies dependency management.
 You can also install the in-development version with:
 
 `pip install https://framagit.org/jaj/dwclib/-/archive/master/dwclib-master.zip`
