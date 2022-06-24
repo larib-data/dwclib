@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dwclib"
-version = "2022.6.23.1"
+version = "2022.6.25"
 description = "Python wrapper to DataWarehouse Connect"
 authors = ["Jona Joachim <jona@joachim.cc>"]
 license = "ISC"
@@ -8,12 +8,12 @@ readme = "README.md"
 repository = "https://framagit.org/jaj/dwclib"
 
 [tool.poetry.dependencies]
-python = "~3.9"
-pandas = "^1.4"
-numba = "^0.55.2"
-dask = "^2022.5.0"
-SQLAlchemy = "^1.4"
-numpy = "^1.22"
+python = ">=3.8,<3.11"
+numpy = "~1.22"
+pandas = "~1.4"
+numba = "~0.55"
+dask = "^2022"
+SQLAlchemy = "~1.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
