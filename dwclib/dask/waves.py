@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import List, Optional
 
 from dwclib.common.meta import waves_meta
@@ -6,14 +7,16 @@ from dwclib.dask.generic import read_data
 
 from .waves_convert import convert_dataframe
 
+one_hour = timedelta(hours=1)
+
 
 def read_waves(
     patientid,
     dtbegin,
     dtend,
     labels: Optional[List[str]] = None,
-    interval=None,
-    npartitions=None,
+    interval: timedelta = one_hour,
+    npartitions: Optional[int] = None,
     uri=None,
 ):
     if labels is None:
