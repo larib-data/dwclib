@@ -7,6 +7,7 @@ def build_numerics_meta(naive_datetime=True):
     idx = pd.DatetimeIndex([], name='TimeStamp', tz=tz)
     dtypes = {
         'PatientId': 'string',
+        'Label': 'string',
         'SubLabel': 'string',
         'Value': 'float32',
     }
