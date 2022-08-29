@@ -13,6 +13,7 @@ def read_numerics(
     dtbegin,
     dtend,
     labels: Optional[List[str]] = None,
+    sublabels: Optional[List[str]] = None,
     interval: timedelta = one_hour,
     uri=None,
 ):
@@ -27,5 +28,6 @@ def read_numerics(
         interval=interval,
         patientids=patientids,
         labels=labels,
+        sublabels=sublabels,
         naive_datetime=True,
     )

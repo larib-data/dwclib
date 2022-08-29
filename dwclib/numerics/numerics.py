@@ -14,14 +14,19 @@ def read_numerics(
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
     labels: Optional[List[str]] = None,
+    sublabels: Optional[List[str]] = None,
+    pivot: bool = True,
     uri: Optional[str] = None,
 ) -> pd.DataFrame:
     if not uri:
         uri = dwcuri
     if labels is None:
         labels = []
-    df = run_numerics_query(uri, dtbegin, dtend, patientids, labels)
-    df = pivot_numerics(df)
+    if sublabels is None:
+        sublabels = []
+    df = run_numerics_query(uri, dtbegin, dtend, patientids, labels, sublabels)
+    if pivot:
+        df = pivot_numerics(df)
     # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
     if not is_list_like(patientids):
         # Only 1 patient

@@ -13,10 +13,11 @@ def run_numerics_query(
     dtend: Union[str, datetime],
     patientids: Union[str, List[str]],
     labels: List[str],
+    sublabels: List[str],
     naive_datetime: bool = False,
 ) -> pd.DataFrame:
     engine = create_engine(uri)
-    q = build_numerics_query(engine, dtbegin, dtend, patientids, labels)
+    q = build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels)
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
@@ -29,7 +30,7 @@ def run_numerics_query(
         return df.astype(numerics_meta.dtypes.to_dict(), copy=False)
 
 
-def build_numerics_query(engine, dtbegin, dtend, patientids, labels):
+def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
     dbmeta = MetaData(bind=engine)
     nnt = Table(
         'Numeric_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
@@ -43,7 +44,9 @@ def build_numerics_query(engine, dtbegin, dtend, patientids, labels):
     nn = nn.where(nnt.c.TimeStamp >= dtbegin)
     nn = nn.where(nnt.c.TimeStamp < dtend)
     if labels:
-        nn = nn.where(nnt.c.SubLabel.in_(labels))
+        nn = nn.where(nnt.c.Label.in_(labels))
+    if sublabels:
+        nn = nn.where(nnt.c.SubLabel.in_(sublabels))
     nn = nn.cte('Numeric')
 
     nv = select(nvt.c.TimeStamp, nvt.c.NumericId, nvt.c.Value, nvt.c.PatientId)
@@ -59,5 +62,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids, labels):
     nv = nv.cte('NumericValue')
 
     j = join(nv, nn, nv.c.NumericId == nn.c.Id)
-    q = select(nv.c.TimeStamp, nv.c.PatientId, nn.c.SubLabel, nv.c.Value).select_from(j)
+    q = select(
+        nv.c.TimeStamp, nv.c.PatientId, nn.c.Label, nn.c.SubLabel, nv.c.Value
+    ).select_from(j)
     return q
