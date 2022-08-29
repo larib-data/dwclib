@@ -39,7 +39,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
         'NumericValue_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
     )
 
-    nn = select(nnt.c.TimeStamp, nnt.c.Id, nnt.c.SubLabel)
+    nn = select(nnt.c.TimeStamp, nnt.c.Id, nnt.c.Label, nnt.c.SubLabel)
     nn = nn.with_hint(nnt, 'WITH (NOLOCK)')
     nn = nn.where(nnt.c.TimeStamp >= dtbegin)
     nn = nn.where(nnt.c.TimeStamp < dtend)
