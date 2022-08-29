@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 from pathlib import Path
-from warnings import RuntimeWarning, warn
+from warnings import warn
 
 try:
     import pyodbc
