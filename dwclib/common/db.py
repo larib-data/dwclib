@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from pathlib import Path
+from warnings import RuntimeWarning, warn
 
 try:
     import pyodbc
@@ -14,9 +15,13 @@ from sqlalchemy.engine import URL
 configfilename = '.dwclibrc'
 configfile = Path(f'~/{configfilename}').expanduser()
 
+
 if configfile.exists():
     config = ConfigParser()
     config.read(configfile)
+    dwcdriver = config.get('dwc', 'driver', fallback=odbcdriver)
+    if dwcdriver is None:
+        warn('No ODBC driver found for DWC', RuntimeWarning)
 
     dwcuri = URL.create(
         'mssql+pyodbc',
@@ -24,7 +29,7 @@ if configfile.exists():
         password=config.get('dwc', 'pass'),
         host=config.get('dwc', 'host'),
         database=config.get('dwc', 'dbname'),
-        query={'driver': config.get('dwc', 'driver', fallback=odbcdriver)},
+        query={'driver': dwcdriver},
     )
 
     pguri = URL.create(
