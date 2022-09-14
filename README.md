@@ -8,11 +8,16 @@ Python wrapper to DataWarehouse Connect.
 `pip install dwclib`
 
 Installation through conda greatly simplifies dependency management.
-You can also install the in-development version with:
 
-`pip install https://framagit.org/jaj/dwclib/-/archive/master/dwclib-master.zip`
+Additionally, Microsoft SQL Server drivers are needed and will need to be installed seperately.
+See here for more information: https://github.com/mkleehammer/pyodbc/wiki
+
 
 ## Changelog
+- 2022.9.14
+    - Support numeric labels and sublabels in read_patients and read_numerics
+    - Support to query for multiple patients at once in read_numerics
+
 - 2022.6.23
     - Convert packaging from flit to poetry
     - Add linting and testing with nox, flake8 and safety
