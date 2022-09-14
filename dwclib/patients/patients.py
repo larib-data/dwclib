@@ -83,6 +83,7 @@ def build_query(
     bedlabel,
     wavelabels,
     numericlabels,
+    numericsublabels,
 ):
     pgdb = create_engine(uri)
     pgmeta = MetaData(bind=pgdb)
@@ -105,7 +106,7 @@ def build_query(
         t_patients = subq
         p = t_patients.c
 
-    q = select([t_patients, pl.numericlabels, pl.wavelabels])
+    q = select([t_patients, pl.numericlabels, pl.numericsublabels, pl.wavelabels])
     q = q.select_from(
         t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True)
     )
@@ -126,6 +127,8 @@ def build_query(
         q = q.where(or_(p.data_begin <= dtend, p.data_end <= dtend))
     if numericlabels:
         q = q.where(pl.numericlabels.contains(numericlabels))
+    if numericsublabels:
+        q = q.where(pl.numericsublabels.contains(numericsublabels))
     if wavelabels:
         q = q.where(pl.wavelabels.contains(wavelabels))
     return q

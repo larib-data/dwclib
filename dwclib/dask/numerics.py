@@ -19,6 +19,8 @@ def read_numerics(
 ):
     if labels is None:
         labels = []
+    if sublabels is None:
+        sublabels = []
     return read_data(
         runner=run_numerics_query,
         meta=numerics_meta,
