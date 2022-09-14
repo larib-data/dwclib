@@ -27,10 +27,10 @@ def read_numerics(
     df = run_numerics_query(uri, dtbegin, dtend, patientids, labels, sublabels)
     if pivot:
         df = pivot_numerics(df)
-    # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
-    if not is_list_like(patientids):
-        # Only 1 patient
-        df.columns = df.columns.droplevel(0)
+        # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
+        if not is_list_like(patientids):
+            # Only 1 patient
+            df.columns = df.columns.droplevel(0)
     return df
 
 
