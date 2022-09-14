@@ -21,6 +21,7 @@ def read_patients(
     bedlabel: str = None,
     wavelabels: Optional[List[str]] = None,
     numericlabels: Optional[List[str]] = None,
+    numericsublabels: Optional[List[str]] = None,
     uri: Optional[str] = None,
     limit: Optional[int] = None,
 ) -> pd.DataFrame:
@@ -50,6 +51,8 @@ def read_patients(
         wavelabels = []
     if numericlabels is None:
         numericlabels = []
+    if numericsublabels is None:
+        numericsublabels = []
     q = build_query(
         uri,
         patientid,
@@ -61,6 +64,7 @@ def read_patients(
         bedlabel,
         wavelabels,
         numericlabels,
+        numericsublabels,
     )
     if limit:
         q = q.limit(limit)
