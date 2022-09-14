@@ -10,7 +10,7 @@ from pandas.api.types import is_list_like
 
 
 def read_numerics(
-    patientids: Union[str, List[str]],
+    patientids: Union[None, str, List[str]],
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
     labels: Optional[List[str]] = None,
@@ -24,13 +24,16 @@ def read_numerics(
         labels = []
     if sublabels is None:
         sublabels = []
+    if is_list_like(patientids) and len(patientids) == 1:
+        patientids = patientids[0]
     df = run_numerics_query(uri, dtbegin, dtend, patientids, labels, sublabels)
     if pivot:
         df = pivot_numerics(df)
-        # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
-        if not is_list_like(patientids):
-            # Only 1 patient
-            df.columns = df.columns.droplevel(0)
+    single_patient = patientids is not None and not is_list_like(patientids)
+    if single_patient:
+        df.columns = df.columns.droplevel(0)
+    # Other way to check if there is a single patientid:
+    # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:
     return df
 
 

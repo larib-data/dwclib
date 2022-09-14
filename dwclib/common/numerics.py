@@ -11,7 +11,7 @@ def run_numerics_query(
     uri: str,
     dtbegin: Union[str, datetime],
     dtend: Union[str, datetime],
-    patientids: Union[str, List[str]],
+    patientids: Union[None, str, List[str]],
     labels: List[str],
     sublabels: List[str],
     naive_datetime: bool = False,
