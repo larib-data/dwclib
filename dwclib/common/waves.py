@@ -46,7 +46,7 @@ def build_waves_query(engine, dtbegin, dtend, patientid, labels):
     ws = ws.with_hint(wst, 'WITH (NOLOCK)')
     ws = ws.where(wst.c.TimeStamp >= dtbegin)
     ws = ws.where(wst.c.TimeStamp < dtend)
-    ws = ws.where(wst.c.WaveSamples is not None)
+    ws = ws.where(wst.c.WaveSamples.is_not(None))
     if patientid:
         ws = ws.where(wst.c.PatientId == patientid)
     ws = ws.cte('WaveSample')
