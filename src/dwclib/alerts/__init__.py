@@ -1,3 +1,3 @@
-from .alerts import load_rosetta_data
+from .alerts import read_alerts
 
-__all__ = ['load_rosetta_data']
+__all__ = ['read_alerts']
