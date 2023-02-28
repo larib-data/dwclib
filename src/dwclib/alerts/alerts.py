@@ -88,8 +88,8 @@ def load_rosetta_data():
 
     with resources.open_text(assets, 'rosetta_terms.csv') as fd:
         df = pd.read_csv(fd, usecols=cols, index_col='CF_CODE10', dtype=dtypes)
-    df = df[df['Vendor_ID'] == 'Philips']
-    df = df.drop(columns=['Vendor_ID'])
+    # df = df[df['Vendor_ID'] == 'Philips']
+    # df = df.drop(columns=['Vendor_ID'])
     df = df.loc[df.index.dropna()]
     df = df.loc[~df.index.duplicated()]
     return df
