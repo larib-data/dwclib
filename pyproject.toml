@@ -18,6 +18,7 @@ pandas = "~1.4"
 numba = "~0.55"
 dask = "^2022"
 SQLAlchemy = "~1.4"
+platformdirs = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"

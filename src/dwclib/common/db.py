@@ -1,7 +1,8 @@
 from configparser import ConfigParser
-from os import getenv
 from pathlib import Path
 from warnings import warn
+
+from platformdirs import user_config_dir
 
 try:
     import pyodbc
@@ -13,8 +14,9 @@ except (ImportError, IndexError):
 
 from sqlalchemy.engine import URL
 
-default_configfile = Path('~/.config/larib/config').expanduser()
-configfile = getenv('CONFIGFILE', default_configfile)
+config_dir = Path(user_config_dir(appname="dwclib", appauthor="larib-data"))
+config_dir.mkdir(parents=True, exist_ok=True)
+configfile = config_dir / "config.ini"
 
 
 if configfile.exists():
@@ -30,7 +32,10 @@ if configfile.exists():
         password=config.get('dwclib', 'dwc_pass'),
         host=config.get('dwclib', 'dwc_host'),
         database=config.get('dwclib', 'dwc_dbname'),
-        query={'driver': dwcdriver},
+        query={
+            "driver": dwcdriver,
+            "Encrypt": "no",
+        },
     )
 
     pguri = URL.create(
@@ -41,5 +46,6 @@ if configfile.exists():
         database=config.get('dwclib', 'dwcmeta_dbname'),
     )
 else:
+    warn(f"Configuration file {configfile} does not exist.", RuntimeWarning)
     dwcuri = None
     pguri = None
