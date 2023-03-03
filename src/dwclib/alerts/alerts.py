@@ -72,15 +72,15 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
 @lru_cache
 def load_alerts_meta():
     cols = [
-        'alert_text',
-        'mdc_source',
+        #'alert_text',
+        #'mdc_source',
         'physioid',
-        'mdc_alert',
         'alert_code',
+        'mdc_alert',
         'alert_kind',
         'severity',
         'source_label',
-        'source_description',
+        #'source_description',
     ]
     dtypes = {c: 'string' for c in cols}
     dtypes['physioid'] = 'Int64'
