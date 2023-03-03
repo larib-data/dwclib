@@ -33,16 +33,15 @@ def run_alerts_query(
 ) -> pd.DataFrame:
     engine = create_engine(uri)
     q = build_alerts_query(engine, dtbegin, dtend, patientids)
-    # print(q.compile(engine))
 
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='AlertId')
     engine.dispose()
 
-    rosettadf = load_rosetta_data()
-    rosettadf = rosettadf[['DisplayName', 'Description', 'Group']]
-    dfr = df.join(rosettadf, on='Source')
-    return dfr.drop(columns=['Source'])
+    metadf = load_alerts_meta()
+    metadf = metadf[['source_label', 'mdc_alert', 'alert_kind', 'severity']]
+    dfr = df.join(metadf, on=['Source', 'Code'])
+    return dfr.drop(columns=['Source', 'Code'])
 
 
 def build_alerts_query(engine, dtbegin, dtend, patientids):
@@ -51,10 +50,11 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
 
     aq = select(
         at.c.AlertId,
-        func.min(at.c.TimeStamp).label('Begin'),
-        func.max(at.c.TimeStamp).label('End'),
+        func.min(at.c.TimeStamp).label('begin'),
+        func.max(at.c.TimeStamp).label('end'),
         func.max(at.c.Source).label('Source'),
-        func.max(at.c.Label).label('Label'),
+        func.max(at.c.Code).label('Code'),
+        func.max(at.c.Label).label('alert_label'),
     )
     aq = aq.with_hint(at, 'WITH (NOLOCK)')
     aq = aq.where(at.c.TimeStamp >= dtbegin)
@@ -70,26 +70,22 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
 
 
 @lru_cache
-def load_rosetta_data():
+def load_alerts_meta():
     cols = [
-        'Group',
-        'REFID',
-        'DisplayName',
-        'Description',
-        'Vendor_VMD',
-        'Vendor_UOM',
-        'UOM_MDC',
-        'UOM_UCUM',
-        'Vendor_ID',
-        'CF_CODE10',
+        'alert_text',
+        'mdc_source',
+        'physioid',
+        'mdc_alert',
+        'alert_code',
+        'alert_kind',
+        'severity',
+        'source_label',
+        'source_description',
     ]
     dtypes = {c: 'string' for c in cols}
-    dtypes['CF_CODE10'] = 'Int64'
+    dtypes['physioid'] = 'Int64'
+    dtypes['alert_code'] = 'Int64'
 
-    with resources.open_text(assets, 'rosetta_terms.csv') as fd:
-        df = pd.read_csv(fd, usecols=cols, index_col='CF_CODE10', dtype=dtypes)
-    # df = df[df['Vendor_ID'] == 'Philips']
-    # df = df.drop(columns=['Vendor_ID'])
-    df = df.loc[df.index.dropna()]
-    df = df.loc[~df.index.duplicated()]
+    with resources.open_text(assets, 'alert_ref.csv') as fd:
+        df = pd.read_csv(fd, usecols=cols, index_col=['physioid', 'alert_code'], dtype=dtypes)
     return df
