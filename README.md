@@ -14,6 +14,10 @@ See here for more information: https://github.com/mkleehammer/pyodbc/wiki
 
 
 ## Changelog
+- 2023.6.7
+    - Support for querying alerts using the read_alerts call
+    - Use the platformdirs package for config file location
+
 - 2022.9.14
     - Support numeric labels and sublabels in read_patients and read_numerics
     - Support to query for multiple patients at once in read_numerics
