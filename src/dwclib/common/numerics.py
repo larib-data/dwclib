@@ -53,7 +53,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
     nv = nv.with_hint(nvt, 'WITH (NOLOCK)')
     nv = nv.where(nvt.c.TimeStamp >= dtbegin)
     nv = nv.where(nvt.c.TimeStamp < dtend)
-    nv = nv.where(nvt.c.Value is not None)
+    nv = nv.where(nvt.c.Value.is_not(None))
     if patientids:
         if is_list_like(patientids):
             nv = nv.where(nvt.c.PatientId.in_(patientids))
