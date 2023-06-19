@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "dwclib"
-version = "2023.6.7"
+version = "2023.6.19"
 description = "Python wrapper to DataWarehouse Connect"
 authors = ["Jona Joachim <jona@joachim.cc>"]
 license = "ISC"
@@ -15,7 +15,6 @@ repository = "https://github.com/larib-data/dwclib"
 python = ">=3.8,<4"
 numpy = "^1"
 pandas = ">=1.4,<3"
-numba = "~0.57"
 dask = ">=2022"
 SQLAlchemy = "~1.4"
 platformdirs = "^3.0.0"

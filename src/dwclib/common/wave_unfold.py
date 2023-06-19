@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from numba import njit
 
 
 def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
@@ -24,17 +23,16 @@ def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
     return pd.Series(realvals, index=timestamps)
 
 
-@njit
 def wave_unfold(indata: bytes, cau: float, cal: float, csu: int, csl: int):
     if len(indata) % 2:
         indata = indata[:-1]
     int16le = np.dtype('<i2')
     npindata = np.frombuffer(indata, dtype=int16le)
-    if (csu - csl) != 0:
-        m = (cau - cal) / (csu - csl)
-        b = cau - m * csu
-    else:
+    if any(np.isnan([cau, cal, csu, csl])) or (csu - csl) == 0:
         m = 1
         b = 0
+    else:
+        m = (cau - cal) / (csu - csl)
+        b = cau - m * csu
     outdata = m * npindata.astype(np.float32) + b
     return outdata
