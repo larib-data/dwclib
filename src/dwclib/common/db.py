@@ -14,24 +14,23 @@ except (ImportError, IndexError):
 
 from sqlalchemy.engine import URL
 
-config_dir = Path(user_config_dir(appname="dwclib", appauthor="larib-data"))
-config_dir.mkdir(parents=True, exist_ok=True)
+config_dir = Path(user_config_dir(appname="larib-data", appauthor="larib-data"))
 configfile = config_dir / "config.ini"
 
 
 if configfile.exists():
     config = ConfigParser()
     config.read(configfile)
-    dwcdriver = config.get('dwclib', 'dwc_driver', fallback=odbcdriver)
+    dwcdriver = config.get('dwc', 'driver', fallback=odbcdriver)
     if dwcdriver is None:
         warn('No ODBC driver found for DWC', RuntimeWarning)
 
     dwcuri = URL.create(
         'mssql+pyodbc',
-        username=config.get('dwclib', 'dwc_user'),
-        password=config.get('dwclib', 'dwc_pass'),
-        host=config.get('dwclib', 'dwc_host'),
-        database=config.get('dwclib', 'dwc_dbname'),
+        username=config.get('dwc', 'user'),
+        password=config.get('dwc', 'pass'),
+        host=config.get('dwc', 'host'),
+        database=config.get('dwc', 'dbname'),
         query={
             "driver": dwcdriver,
             "Encrypt": "no",
@@ -40,10 +39,10 @@ if configfile.exists():
 
     pguri = URL.create(
         'postgresql',
-        username=config.get('dwclib', 'dwcmeta_user'),
-        password=config.get('dwclib', 'dwcmeta_pass'),
-        host=config.get('dwclib', 'dwcmeta_host'),
-        database=config.get('dwclib', 'dwcmeta_dbname'),
+        username=config.get('dwcmeta', 'user'),
+        password=config.get('dwcmeta', 'pass'),
+        host=config.get('dwcmeta', 'host'),
+        database=config.get('dwcmeta', 'dbname'),
     )
 else:
     warn(f"Configuration file {configfile} does not exist.", RuntimeWarning)
