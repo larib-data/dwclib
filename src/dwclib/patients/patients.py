@@ -1,8 +1,9 @@
 from typing import List, Optional
 
 import pandas as pd
-from dwclib.common.db import pguri
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
+
+from dwclib.common.db import pguri
 
 
 def read_patient(*args, **kwargs) -> Optional[pd.Series]:
@@ -71,8 +72,6 @@ def read_patients(
     engine = create_engine(uri)
     with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='patientid')
-    df['data_begin'] = df['data_begin'].to_numpy(dtype='datetime64[ns]')
-    df['data_end'] = df['data_end'].to_numpy(dtype='datetime64[ns]')
     return df
 
 

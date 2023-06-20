@@ -31,5 +31,4 @@ def read_numerics(
         patientids=patientids,
         labels=labels,
         sublabels=sublabels,
-        naive_datetime=True,
     )

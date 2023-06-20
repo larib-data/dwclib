@@ -30,6 +30,5 @@ def read_waves(
         interval=interval,
         patientid=patientid,
         labels=labels,
-        naive_datetime=True,
     )
     return convert_dataframe(ddf, labels, npartitions)

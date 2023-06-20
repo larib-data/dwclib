@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
+def unfold_row(row: pd.Series) -> pd.Series:
     # XXX unify following line once we use the same unfold_row function for pandas and dask
     begintime = row.name[0] if isinstance(row.name, tuple) else row.name
     basetime = 1000 * begintime.timestamp()
@@ -18,8 +18,6 @@ def unfold_row(row: pd.Series, naive_datetime=True) -> pd.Series:
     timestamps = basetime + msperiod * np.arange(len(realvals))
     # Convert to datetime[64]
     timestamps = pd.to_datetime(timestamps, unit='ms', utc=True)
-    if naive_datetime:
-        timestamps = timestamps.to_numpy(dtype='datetime64[ns]')
     return pd.Series(realvals, index=timestamps)
 
 

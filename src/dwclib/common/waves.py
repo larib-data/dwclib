@@ -1,9 +1,10 @@
 import pandas as pd
-from dwclib.common.meta import waves_meta
 from sqlalchemy import MetaData, Table, create_engine, join, select
 
+from dwclib.common.meta import waves_meta
 
-def run_waves_query(uri, dtbegin, dtend, patientid, labels, naive_datetime=False):
+
+def run_waves_query(uri, dtbegin, dtend, patientid, labels):
     engine = create_engine(uri)
     q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
 
@@ -13,8 +14,7 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels, naive_datetime=False
     if len(df) == 0:
         return waves_meta
     else:
-        dtidx = pd.to_datetime(df.index, utc=True)
-        df.index = dtidx.to_numpy(dtype='datetime64[ns]') if naive_datetime else dtidx
+        df.index = pd.to_datetime(df.index, utc=True)
         return df.astype(waves_meta.dtypes.to_dict(), copy=False)
 
 

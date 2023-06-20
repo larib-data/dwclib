@@ -14,6 +14,11 @@ See here for more information: https://github.com/mkleehammer/pyodbc/wiki
 
 
 ## Changelog
+- 2023.6.21
+    - Remove all occurences of naive datetime since dask now support tz-aware
+    - New config file syntax to be compatible with other libraries
+    - Fix a bug when Pleth waveform return all NaN
+
 - 2023.6.7
     - Support for querying alerts using the read_alerts call
     - Use the platformdirs package for config file location
