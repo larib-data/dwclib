@@ -15,6 +15,7 @@ def read_patient(*args, **kwargs) -> Optional[pd.Series]:
 def read_patients(
     patientid: str = None,
     name: str = None,
+    firstname: str = None,
     ipp: str = None,
     dtbegin: str = None,
     dtend: str = None,
@@ -33,6 +34,7 @@ def read_patients(
     Args:
         patientid: A DWC patient identifier
         name: A patient name
+        firstname: A patient first name
         ipp: A patient lifetime identifier
         dtbegin: The beginning of available data samples
         dtend: The end of available data samples
@@ -58,6 +60,7 @@ def read_patients(
         uri,
         patientid,
         name,
+        firstname,
         ipp,
         dtbegin,
         dtend,
@@ -79,6 +82,7 @@ def build_query(
     uri,
     patientid,
     name,
+    firstname,
     ipp,
     dtbegin,
     dtend,
@@ -96,28 +100,32 @@ def build_query(
     t_patientlabels = Table('patientlabels', pgmeta, autoload_with=pgdb)
     pl = t_patientlabels.c
 
-    if name:
+    if name or firstname:
         # Build a subquery to allow approximate name search
-        subq = select(
-            [
-                t_patients,
-                func.levenshtein(func.lower(p.lastname), func.lower(name)).label(
-                    'distance'
-                ),
-            ]
-        ).cte('subq')
-        t_patients = subq
+        fields = [t_patients]
+        if name:
+            fields.append(
+                func.levenshtein(func.lower(p.lastname), func.lower(name)).label('d_name')
+            )
+        if firstname:
+            fields.append(
+                func.levenshtein(func.lower(p.firstname), func.lower(firstname)).label(
+                    'd_firstname'
+                )
+            )
+        t_patients = select(fields).cte()  # Replace Patients table with CTE
         p = t_patients.c
 
     q = select([t_patients, pl.numericlabels, pl.numericsublabels, pl.wavelabels])
-    q = q.select_from(
-        t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True)
-    )
+    q = q.select_from(t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True))
     if patientid:
         q = q.where(p.patientid == patientid)
     if name:
-        q = q.where(p.distance < 3)
-        q = q.order_by(asc(p.distance))
+        q = q.where(p.d_name < 3)
+        q = q.order_by(asc(p.d_name))
+    if firstname:
+        q = q.where(p.d_firstname < 3)
+        q = q.order_by(asc(p.d_firstname))
     if ipp:
         q = q.where(p.lifetimeid == ipp)
     if bedlabel:

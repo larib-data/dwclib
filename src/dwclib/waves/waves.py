@@ -27,6 +27,7 @@ def read_waves(
 
 
 def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    # TODO: see if we can efficiently pre-allocate buffer
     databuffer = defaultdict(list)
     for _, row in df.iterrows():
         srow = unfold_row(row)
