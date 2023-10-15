@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-import numpy as np
 import pandas as pd
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
@@ -22,11 +21,9 @@ def read_enumerations(
         uri = dwcuri
     if labels is None:
         labels = []
-    if sublabels is None:
-        sublabels = []
     if is_list_like(patientids) and len(patientids) == 1:
         patientids = patientids[0]
-    df = run_enumerations_query(uri, dtbegin, dtend, patientids, labels, sublabels)
+    df = run_enumerations_query(uri, dtbegin, dtend, patientids, labels)
     df = df.dropna(axis=0, how='any', subset=['Value'])
     if not len(df.index):
         return enumerations_meta
@@ -43,7 +40,7 @@ def pivot_enumerations(df: pd.DataFrame) -> Optional[pd.DataFrame]:
         index=df.index,
         columns=['PatientId', 'Label'],
         values='Value',
-        aggfunc=np.nanmax,
+        aggfunc='max',
     )
     return df
 
@@ -58,7 +55,7 @@ def run_enumerations_query(
     engine = create_engine(uri)
     q = build_enumerations_query(engine, dtbegin, dtend, patientids, labels)
 
-    with engine.coeeect() as conn:
+    with engine.connect() as conn:
         df = pd.read_sql(q, conn, index_col='TimeStamp')
     engine.dispose()
     if len(df) == 0:

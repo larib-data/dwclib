@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-import numpy as np
 import pandas as pd
 from pandas.api.types import is_list_like
 
@@ -46,6 +45,6 @@ def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
         index=df.index,
         columns=['PatientId', 'SubLabel'],
         values='Value',
-        aggfunc=np.nanmax,
+        aggfunc='max',
     )
     return df
