@@ -7,6 +7,26 @@ from dwclib.common.db import pguri
 
 
 def read_patient(*args, **kwargs) -> Optional[pd.Series]:
+    """Reads a single patient from DWCmeta database.
+
+    Retrieves a pandas series consisting of the patient which matches the search criteria.
+
+    Args:
+        patientid: A DWC patient identifier
+        name: A patient name
+        firstname: A patient first name
+        ipp: A patient lifetime identifier
+        dtbegin: The beginning of available data samples
+        dtend: The end of available data samples
+        clinicalunit: The clinical unit the patient belongs to
+        bedlabel: The bed / room in which the patient stays
+        wavelabels: A list of waveform labels
+        numericlabels: A list of numerics labels
+        uri: Optional sqlalchemy URI for the database if not provided in the config file
+
+    Returns:
+        A pandas series corresponding to a patient stay.
+    """
     res = read_patients(*args, **kwargs, limit=1)
     if len(res):
         return res.iloc[0]
