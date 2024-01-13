@@ -1,12 +1,13 @@
 from datetime import timedelta
 from itertools import count
 
-from dwclib.common.db import dwcuri
-
+import dask
 import dask.dataframe as dd
 from dask import delayed
+from dwclib.common.db import dwcuri
 
 one_hour = timedelta(hours=1)
+dask.config.set({"dataframe.convert-string": False})
 
 
 def build_divisions(dtbegin, dtend, interval):
