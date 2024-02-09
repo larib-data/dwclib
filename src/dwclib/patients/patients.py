@@ -113,7 +113,7 @@ def build_query(
     numericsublabels,
 ):
     pgdb = create_engine(uri)
-    pgmeta = MetaData(bind=pgdb)
+    pgmeta = MetaData()
 
     t_patients = Table('patients', pgmeta, autoload_with=pgdb)
     p = t_patients.c
@@ -136,7 +136,7 @@ def build_query(
         t_patients = select(fields).cte()  # Replace Patients table with CTE
         p = t_patients.c
 
-    q = select([t_patients, pl.numericlabels, pl.numericsublabels, pl.wavelabels])
+    q = select(t_patients, pl.numericlabels, pl.numericsublabels, pl.wavelabels)
     q = q.select_from(t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True))
     if patientid:
         q = q.where(p.patientid == patientid)
