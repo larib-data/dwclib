@@ -19,10 +19,10 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels):
 
 
 def build_waves_query(engine, dtbegin, dtend, patientid, labels):
-    dbmeta = MetaData(bind=engine)
-    wwt = Table('Wave_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
+    dbmeta = MetaData()
+    wwt = Table('Wave_', dbmeta, schema='_Export', autoload_with=engine)
     wst = Table(
-        'WaveSample_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
+        'WaveSample_', dbmeta, schema='_Export', autoload_with=engine
     )
 
     ww = select(

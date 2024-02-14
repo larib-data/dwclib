@@ -66,9 +66,9 @@ def run_enumerations_query(
 
 
 def build_enumerations_query(engine, dtbegin, dtend, patientids, labels):
-    dbmeta = MetaData(bind=engine)
-    eet = Table('Enumeration_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
-    evt = Table('EnumerationValue_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
+    dbmeta = MetaData()
+    eet = Table('Enumeration_', dbmeta, schema='_Export', autoload_with=engine)
+    evt = Table('EnumerationValue_', dbmeta, schema='_Export', autoload_with=engine)
 
     ee = select(eet.c.TimeStamp, eet.c.Id, eet.c.Label)
     ee = ee.with_hint(eet, 'WITH (NOLOCK)')
