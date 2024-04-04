@@ -35,29 +35,29 @@ def run_alerts_query(
     q = build_alerts_query(engine, dtbegin, dtend, patientids)
 
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='AlertId')
+        df = pd.read_sql(q, conn, index_col="AlertId")
     engine.dispose()
 
     metadf = load_alerts_meta()
-    metadf = metadf[['source_label', 'mdc_alert', 'alert_kind', 'severity']]
-    dfr = df.join(metadf, on=['Source', 'Code'])
-    return dfr.drop(columns=['Source', 'Code'])
+    metadf = metadf[["source_label", "mdc_alert", "alert_kind", "severity"]]
+    dfr = df.join(metadf, on=["Source", "Code"])
+    return dfr.drop(columns=["Source", "Code"])
 
 
 def build_alerts_query(engine, dtbegin, dtend, patientids):
-    dbmeta = MetaData(schema='_Export')
+    dbmeta = MetaData(schema="_Export")
     dbmeta.reflect(bind=engine)
-    at = Table('Alert_', dbmeta, autoload=True, autoload_with=engine)
+    at = Table("Alert_", dbmeta, autoload=True, autoload_with=engine)
 
     aq = select(
         at.c.AlertId,
-        func.min(at.c.TimeStamp).label('begin'),
-        func.max(at.c.TimeStamp).label('end'),
-        func.max(at.c.Source).label('Source'),
-        func.max(at.c.Code).label('Code'),
-        func.max(at.c.Label).label('alert_label'),
+        func.min(at.c.TimeStamp).label("begin"),
+        func.max(at.c.TimeStamp).label("end"),
+        func.max(at.c.Source).label("Source"),
+        func.max(at.c.Code).label("Code"),
+        func.max(at.c.Label).label("alert_label"),
     )
-    aq = aq.with_hint(at, 'WITH (NOLOCK)')
+    aq = aq.with_hint(at, "WITH (NOLOCK)")
     aq = aq.where(at.c.TimeStamp >= dtbegin)
     aq = aq.where(at.c.TimeStamp < dtend)
     aq = aq.group_by(at.c.AlertId)
@@ -73,19 +73,19 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
 @lru_cache
 def load_alerts_meta():
     cols = [
-        'physioid',
-        'alert_code',
-        'mdc_alert',
-        'alert_kind',
-        'severity',
-        'source_label',
+        "physioid",
+        "alert_code",
+        "mdc_alert",
+        "alert_kind",
+        "severity",
+        "source_label",
     ]
-    dtypes = {c: 'string' for c in cols}
-    dtypes['physioid'] = 'Int64'
-    dtypes['alert_code'] = 'Int64'
+    dtypes = {c: "string" for c in cols}
+    dtypes["physioid"] = "Int64"
+    dtypes["alert_code"] = "Int64"
 
-    with resources.open_text(assets, 'alert_ref.csv') as fd:
+    with resources.open_text(assets, "alert_ref.csv") as fd:
         df = pd.read_csv(
-            fd, usecols=cols, index_col=['physioid', 'alert_code'], dtype=dtypes
+            fd, usecols=cols, index_col=["physioid", "alert_code"], dtype=dtypes
         )
     return df

@@ -14,6 +14,10 @@ See here for more information: https://github.com/mkleehammer/pyodbc/wiki
 
 
 ## Changelog
+- 2024.4.4
+    - Support querying enumerations
+    - Update dependencies
+
 - 2023.6.21
     - Remove all occurences of naive datetime since dask now support tz-aware
     - New config file syntax to be compatible with other libraries
