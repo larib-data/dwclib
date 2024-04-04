@@ -45,8 +45,9 @@ def run_alerts_query(
 
 
 def build_alerts_query(engine, dtbegin, dtend, patientids):
-    dbmeta = MetaData(bind=engine)
-    at = Table('Alert_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
+    dbmeta = MetaData(schema='_Export')
+    dbmeta.reflect(bind=engine)
+    at = Table('Alert_', dbmeta, autoload=True, autoload_with=engine)
 
     aq = select(
         at.c.AlertId,

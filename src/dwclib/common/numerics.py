@@ -30,13 +30,10 @@ def run_numerics_query(
 
 
 def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
-    dbmeta = MetaData(bind=engine)
-    nnt = Table(
-        'Numeric_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
-    )
-    nvt = Table(
-        'NumericValue_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
-    )
+    dbmeta = MetaData(schema='_Export')
+    dbmeta.reflect(bind=engine)
+    nnt = Table('Numeric_', dbmeta, autoload=True, autoload_with=engine)
+    nvt = Table('NumericValue_', dbmeta, autoload=True, autoload_with=engine)
 
     nn = select(nnt.c.TimeStamp, nnt.c.Id, nnt.c.Label, nnt.c.SubLabel)
     nn = nn.with_hint(nnt, 'WITH (NOLOCK)')

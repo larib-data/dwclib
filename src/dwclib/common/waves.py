@@ -1,7 +1,6 @@
 import pandas as pd
-from sqlalchemy import MetaData, Table, create_engine, join, select
-
 from dwclib.common.meta import waves_meta
+from sqlalchemy import MetaData, Table, create_engine, join, select
 
 
 def run_waves_query(uri, dtbegin, dtend, patientid, labels):
@@ -19,11 +18,10 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels):
 
 
 def build_waves_query(engine, dtbegin, dtend, patientid, labels):
-    dbmeta = MetaData(bind=engine)
-    wwt = Table('Wave_', dbmeta, schema='_Export', autoload=True, autoload_with=engine)
-    wst = Table(
-        'WaveSample_', dbmeta, schema='_Export', autoload=True, autoload_with=engine
-    )
+    dbmeta = MetaData(schema='_Export')
+    dbmeta.reflect(bind=engine)
+    wwt = Table('Wave_', dbmeta, autoload=True, autoload_with=engine)
+    wst = Table('WaveSample_', dbmeta, autoload=True, autoload_with=engine)
 
     ww = select(
         wwt.c.TimeStamp,
