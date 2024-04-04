@@ -12,18 +12,18 @@ readme = "README.md"
 repository = "https://github.com/larib-data/dwclib"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4"
+python = "^3.8"
 numpy = "^1"
-pandas = ">=1.4,<3"
+pandas = "^2"
 dask = ">=2023"
-SQLAlchemy = "~1.4"
-platformdirs = "^3.0.0"
+SQLAlchemy = "^2"
+platformdirs = "^3"
 pyarrow = ">=14"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
 flake8-bandit = "^3.0.0"
-safety = "^1.10.3"
+safety = "^2.2"
 flake8-bugbear = "^22.4.25"
 Sphinx = "^5.0.1"
 sphinx-autodoc-typehints = "^1.18.2"

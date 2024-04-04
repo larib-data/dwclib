@@ -72,20 +72,19 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
 @lru_cache
 def load_alerts_meta():
     cols = [
-        #'alert_text',
-        #'mdc_source',
         'physioid',
         'alert_code',
         'mdc_alert',
         'alert_kind',
         'severity',
         'source_label',
-        #'source_description',
     ]
     dtypes = {c: 'string' for c in cols}
     dtypes['physioid'] = 'Int64'
     dtypes['alert_code'] = 'Int64'
 
     with resources.open_text(assets, 'alert_ref.csv') as fd:
-        df = pd.read_csv(fd, usecols=cols, index_col=['physioid', 'alert_code'], dtype=dtypes)
+        df = pd.read_csv(
+            fd, usecols=cols, index_col=['physioid', 'alert_code'], dtype=dtypes
+        )
     return df

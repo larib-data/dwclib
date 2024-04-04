@@ -6,8 +6,8 @@ from nox.sessions import Session
 
 nox.options.sessions = "lint", "safety", "docs"
 
-locations = ["dwclib"]
-python_versions = ['3.8']
+locations = ["src/dwclib"]
+python_versions = ["3.10"]
 
 
 def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
@@ -28,6 +28,7 @@ def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> Non
             "poetry",
             "export",
             "--dev",
+            # "--with dev",
             "--format=requirements.txt",
             "--without-hashes",
             f"--output={requirements.name}",
@@ -58,6 +59,7 @@ def safety(session: Session) -> None:
             "poetry",
             "export",
             "--dev",
+            # "--with dev",
             "--format=requirements.txt",
             "--without-hashes",
             f"--output={requirements.name}",
@@ -66,10 +68,16 @@ def safety(session: Session) -> None:
         install_with_constraints(session, "safety")
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
 
+
 @nox.session(python=python_versions)
 def docs(session: Session) -> None:
     """Build the documentation."""
-    session.run("poetry", "install", "--no-dev", external=True)
+    session.run(
+        "poetry",
+        "install",
+        "--no-dev",
+        # "--only main",
+        external=True,
+    )
     install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints")
     session.run("sphinx-build", "docs", "docs/_build")
-

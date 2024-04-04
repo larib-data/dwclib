@@ -3,6 +3,7 @@ from typing import List, Optional
 import pandas as pd
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
+
 from dwclib.common.db import pguri
 
 
@@ -26,7 +27,7 @@ def read_patient(*args, **kwargs) -> Optional[pd.Series]:
 
     Returns:
         A pandas series corresponding to a patient stay.
-    """
+    """  # noqa: DAR101,DAR102
     res = read_patients(*args, **kwargs, limit=1)
     if len(res):
         return res.iloc[0]
@@ -62,6 +63,7 @@ def read_patients(
         bedlabel: The bed / room in which the patient stays
         wavelabels: A list of waveform labels
         numericlabels: A list of numerics labels
+        numericsublabels: A list of numerics sublabels
         uri: Optional sqlalchemy URI for the database if not provided in the config file
         limit: Maximum number of returned results
 
@@ -125,7 +127,9 @@ def build_query(
         fields = [t_patients]
         if name:
             fields.append(
-                func.levenshtein(func.lower(p.lastname), func.lower(name)).label('d_name')
+                func.levenshtein(func.lower(p.lastname), func.lower(name)).label(
+                    'd_name'
+                )
             )
         if firstname:
             fields.append(
@@ -137,7 +141,9 @@ def build_query(
         p = t_patients.c
 
     q = select([t_patients, pl.numericlabels, pl.numericsublabels, pl.wavelabels])
-    q = q.select_from(t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True))
+    q = q.select_from(
+        t_patients.join(t_patientlabels, pl.patientid == p.patientid, isouter=True)
+    )
     if patientid:
         q = q.where(p.patientid == patientid)
     if name:
