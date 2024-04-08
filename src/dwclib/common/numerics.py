@@ -2,10 +2,9 @@ from datetime import datetime
 from typing import List, Union
 
 import pandas as pd
+from dwclib.common.meta import numerics_meta
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
-
-from dwclib.common.meta import numerics_meta
 
 
 def run_numerics_query(
@@ -20,7 +19,7 @@ def run_numerics_query(
     q = build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels)
 
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='TimeStamp')
+        df = pd.read_sql(q, conn, index_col="TimeStamp")
     engine.dispose()
     if len(df) == 0:
         return numerics_meta
@@ -30,23 +29,22 @@ def run_numerics_query(
 
 
 def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
-    dbmeta = MetaData(schema='_Export')
-    dbmeta.reflect(bind=engine)
-    nnt = Table('Numeric_', dbmeta, autoload=True, autoload_with=engine)
-    nvt = Table('NumericValue_', dbmeta, autoload=True, autoload_with=engine)
+    dbmeta = MetaData(schema="_Export")
+    nnt = Table("Numeric_", dbmeta, autoload_with=engine)
+    nvt = Table("NumericValue_", dbmeta, autoload_with=engine)
 
     nn = select(nnt.c.TimeStamp, nnt.c.Id, nnt.c.Label, nnt.c.SubLabel)
-    nn = nn.with_hint(nnt, 'WITH (NOLOCK)')
+    nn = nn.with_hint(nnt, "WITH (NOLOCK)")
     nn = nn.where(nnt.c.TimeStamp >= dtbegin)
     nn = nn.where(nnt.c.TimeStamp < dtend)
     if labels:
         nn = nn.where(nnt.c.Label.in_(labels))
     if sublabels:
         nn = nn.where(nnt.c.SubLabel.in_(sublabels))
-    nn = nn.cte('Numeric')
+    nn = nn.cte("Numeric")
 
     nv = select(nvt.c.TimeStamp, nvt.c.NumericId, nvt.c.Value, nvt.c.PatientId)
-    nv = nv.with_hint(nvt, 'WITH (NOLOCK)')
+    nv = nv.with_hint(nvt, "WITH (NOLOCK)")
     nv = nv.where(nvt.c.TimeStamp >= dtbegin)
     nv = nv.where(nvt.c.TimeStamp < dtend)
     nv = nv.where(nvt.c.Value.is_not(None))
@@ -55,7 +53,7 @@ def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):
             nv = nv.where(nvt.c.PatientId.in_(patientids))
         else:
             nv = nv.where(nvt.c.PatientId == patientids)
-    nv = nv.cte('NumericValue')
+    nv = nv.cte("NumericValue")
 
     j = join(nv, nn, nv.c.NumericId == nn.c.Id)
     q = select(

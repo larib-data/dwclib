@@ -96,7 +96,7 @@ def read_patients(
         q = q.limit(limit)
     engine = create_engine(uri)
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='patientid')
+        df = pd.read_sql(q, conn, index_col="patientid")
     return df
 
 
@@ -116,10 +116,9 @@ def build_query(
 ):
     pgdb = create_engine(uri)
     pgmeta = MetaData()
-    pgmeta.reflect(bind=pgdb)
-    t_patients = Table('patients', pgmeta, autoload_with=pgdb)
+    t_patients = Table("patients", pgmeta, autoload_with=pgdb)
     p = t_patients.c
-    t_patientlabels = Table('patientlabels', pgmeta, autoload_with=pgdb)
+    t_patientlabels = Table("patientlabels", pgmeta, autoload_with=pgdb)
     pl = t_patientlabels.c
 
     if name or firstname:
@@ -128,13 +127,13 @@ def build_query(
         if name:
             fields.append(
                 func.levenshtein(func.lower(p.lastname), func.lower(name)).label(
-                    'd_name'
+                    "d_name"
                 )
             )
         if firstname:
             fields.append(
                 func.levenshtein(func.lower(p.firstname), func.lower(firstname)).label(
-                    'd_firstname'
+                    "d_firstname"
                 )
             )
         t_patients = select(*fields).cte()  # Replace Patients table with CTE

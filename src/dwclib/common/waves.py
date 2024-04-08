@@ -1,6 +1,7 @@
 import pandas as pd
-from dwclib.common.meta import waves_meta
 from sqlalchemy import MetaData, Table, create_engine, join, select
+
+from dwclib.common.meta import waves_meta
 
 
 def run_waves_query(uri, dtbegin, dtend, patientid, labels):
@@ -8,7 +9,7 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels):
     q = build_waves_query(engine, dtbegin, dtend, patientid, labels)
 
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='TimeStamp')
+        df = pd.read_sql(q, conn, index_col="TimeStamp")
     engine.dispose()
     if len(df) == 0:
         return waves_meta
@@ -18,36 +19,35 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels):
 
 
 def build_waves_query(engine, dtbegin, dtend, patientid, labels):
-    dbmeta = MetaData(schema='_Export')
-    dbmeta.reflect(bind=engine)
-    wwt = Table('Wave_', dbmeta, autoload=True, autoload_with=engine)
-    wst = Table('WaveSample_', dbmeta, autoload=True, autoload_with=engine)
+    dbmeta = MetaData(schema="_Export")
+    wwt = Table("Wave_", dbmeta, autoload_with=engine)
+    wst = Table("WaveSample_", dbmeta, autoload_with=engine)
 
     ww = select(
         wwt.c.TimeStamp,
         wwt.c.Id,
         wwt.c.Label,
         wwt.c.SamplePeriod,
-        wwt.c.CalibrationAbsUpper.label('CAU'),
-        wwt.c.CalibrationAbsLower.label('CAL'),
-        wwt.c.CalibrationScaledUpper.label('CSU'),
-        wwt.c.CalibrationScaledLower.label('CSL'),
+        wwt.c.CalibrationAbsUpper.label("CAU"),
+        wwt.c.CalibrationAbsLower.label("CAL"),
+        wwt.c.CalibrationScaledUpper.label("CSU"),
+        wwt.c.CalibrationScaledLower.label("CSL"),
     )
-    ww = ww.with_hint(wwt, 'WITH (NOLOCK)')
+    ww = ww.with_hint(wwt, "WITH (NOLOCK)")
     ww = ww.where(wwt.c.TimeStamp >= dtbegin)
     ww = ww.where(wwt.c.TimeStamp < dtend)
     if labels:
         ww = ww.where(wwt.c.Label.in_(labels))
-    ww = ww.cte('Wave')
+    ww = ww.cte("Wave")
 
     ws = select(wst.c.TimeStamp, wst.c.WaveId, wst.c.WaveSamples, wst.c.PatientId)
-    ws = ws.with_hint(wst, 'WITH (NOLOCK)')
+    ws = ws.with_hint(wst, "WITH (NOLOCK)")
     ws = ws.where(wst.c.TimeStamp >= dtbegin)
     ws = ws.where(wst.c.TimeStamp < dtend)
     ws = ws.where(wst.c.WaveSamples.is_not(None))
     if patientid:
         ws = ws.where(wst.c.PatientId == patientid)
-    ws = ws.cte('WaveSample')
+    ws = ws.cte("WaveSample")
 
     j = join(ws, ww, ws.c.WaveId == ww.c.Id)
     q = select(

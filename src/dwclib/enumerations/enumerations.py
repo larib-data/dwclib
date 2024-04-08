@@ -24,7 +24,7 @@ def read_enumerations(
     if is_list_like(patientids) and len(patientids) == 1:
         patientids = patientids[0]
     df = run_enumerations_query(uri, dtbegin, dtend, patientids, labels)
-    df = df.dropna(axis=0, how='any', subset=['Value'])
+    df = df.dropna(axis=0, how="any", subset=["Value"])
     if not len(df.index):
         return enumerations_meta
     if pivot:
@@ -38,9 +38,9 @@ def read_enumerations(
 def pivot_enumerations(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     df = df.pivot_table(
         index=df.index,
-        columns=['PatientId', 'Label'],
-        values='Value',
-        aggfunc='max',
+        columns=["PatientId", "Label"],
+        values="Value",
+        aggfunc="max",
     )
     return df
 
@@ -56,7 +56,7 @@ def run_enumerations_query(
     q = build_enumerations_query(engine, dtbegin, dtend, patientids, labels)
 
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col='TimeStamp')
+        df = pd.read_sql(q, conn, index_col="TimeStamp")
     engine.dispose()
     if len(df) == 0:
         return enumerations_meta
@@ -66,26 +66,20 @@ def run_enumerations_query(
 
 
 def build_enumerations_query(engine, dtbegin, dtend, patientids, labels):
-    dbmeta = MetaData(schema='_Export')
-    dbmeta.reflect(bind=engine)
-    eet = Table('Enumeration_', dbmeta, autoload=True, autoload_with=engine)
-    evt = Table(
-        'EnumerationValue_',
-        dbmeta,
-        autoload=True,
-        autoload_with=engine,
-    )
+    dbmeta = MetaData(schema="_Export")
+    eet = Table("Enumeration_", dbmeta, autoload_with=engine)
+    evt = Table("EnumerationValue_", dbmeta, autoload_with=engine)
 
     ee = select(eet.c.TimeStamp, eet.c.Id, eet.c.Label)
-    ee = ee.with_hint(eet, 'WITH (NOLOCK)')
+    ee = ee.with_hint(eet, "WITH (NOLOCK)")
     ee = ee.where(eet.c.TimeStamp >= dtbegin)
     ee = ee.where(eet.c.TimeStamp < dtend)
     if labels:
         ee = ee.where(eet.c.Label.in_(labels))
-    ee = ee.cte('Enumeration')
+    ee = ee.cte("Enumeration")
 
     ev = select(evt.c.TimeStamp, evt.c.EnumerationId, evt.c.Value, evt.c.PatientId)
-    ev = ev.with_hint(evt, 'WITH (NOLOCK)')
+    ev = ev.with_hint(evt, "WITH (NOLOCK)")
     ev = ev.where(evt.c.TimeStamp >= dtbegin)
     ev = ev.where(evt.c.TimeStamp < dtend)
     ev = ev.where(evt.c.Value.is_not(None))
@@ -94,7 +88,7 @@ def build_enumerations_query(engine, dtbegin, dtend, patientids, labels):
             ev = ev.where(evt.c.PatientId.in_(patientids))
         else:
             ev = ev.where(evt.c.PatientId == patientids)
-    ev = ev.cte('EnumerationValue')
+    ev = ev.cte("EnumerationValue")
 
     j = join(ev, ee, ev.c.EnumerationId == ee.c.Id)
     q = select(ev.c.TimeStamp, ev.c.PatientId, ee.c.Label, ev.c.Value).select_from(j)
