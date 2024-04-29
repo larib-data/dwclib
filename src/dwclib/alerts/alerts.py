@@ -35,7 +35,7 @@ def run_alerts_query(
     q = build_alerts_query(engine, dtbegin, dtend, patientids)
 
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col="AlertId")
+        df = pd.read_sql(q, conn, index_col="begin")
     engine.dispose()
 
     metadf = load_alerts_meta()
@@ -49,7 +49,6 @@ def build_alerts_query(engine, dtbegin, dtend, patientids):
     at = Table("Alert_", dbmeta, autoload_with=engine)
 
     aq = select(
-        at.c.AlertId,
         func.min(at.c.TimeStamp).label("begin"),
         func.max(at.c.TimeStamp).label("end"),
         func.max(at.c.Source).label("Source"),
