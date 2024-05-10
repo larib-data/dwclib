@@ -14,6 +14,9 @@ See here for more information: https://github.com/mkleehammer/pyodbc/wiki
 
 
 ## Changelog
+- 2024.5.10
+    - Support searching patients directly in DWC without DWCmeta
+
 - 2024.4.4
     - Support querying enumerations
     - Update dependencies

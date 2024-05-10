@@ -3,8 +3,7 @@ from typing import List, Optional
 import pandas as pd
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
 
-
-from dwclib.common.db import pguri
+from dwclib.common.db import dwcuri, pguri
 
 
 def read_patient(*args, **kwargs) -> Optional[pd.Series]:
@@ -100,6 +99,51 @@ def read_patients(
     return df
 
 
+def read_patients_dwc_native(
+    patientid: str = None,
+    dtbegin: str = None,
+    dtend: str = None,
+    clinicalunit: str = None,
+    bedlabel: str = None,
+    uri: Optional[str] = None,
+    limit: Optional[int] = None,
+) -> pd.DataFrame:
+    """Reads patients from DWC database with the need of dwcmeta.
+
+    Retrieves a pandas dataframe consisting of individual patients which match the search criteria.
+
+    Args:
+        patientid: A DWC patient identifier
+        dtbegin: The beginning of available data samples
+        dtend: The end of available data samples
+        clinicalunit: The clinical unit the patient belongs to
+        bedlabel: The bed / room in which the patient stays
+        uri: Optional sqlalchemy URI for the database if not provided in the config file
+        limit: Maximum number of returned results
+
+    Returns:
+        A pandas dataframe with each row corresponding to an individual patient stay, indexed by unique DWC patient identifiers.
+    """
+    if not uri:
+        uri = dwcuri
+
+    q = build_query_dwc_native(
+        uri,
+        patientid,
+        dtbegin,
+        dtend,
+        clinicalunit,
+        bedlabel,
+    )
+
+    if limit:
+        q = q.limit(limit)
+    engine = create_engine(uri)
+    with engine.connect() as conn:
+        df = pd.read_sql(q, conn, index_col="patientid")
+    return df
+
+
 def build_query(
     uri,
     patientid,
@@ -167,4 +211,41 @@ def build_query(
         q = q.where(pl.numericsublabels.contains(numericsublabels))
     if wavelabels:
         q = q.where(pl.wavelabels.contains(wavelabels))
+    return q
+
+
+def build_query_dwc_native(
+    uri,
+    patientid,
+    dtbegin,
+    dtend,
+    clinicalunit,
+    bedlabel,
+):
+    dwcdb = create_engine(uri)
+    meta = MetaData(schema="_Export")
+    t_patients = Table("Patient_", meta, autoload_with=dwcdb)
+    p = t_patients.c
+
+    q = select(
+        p.Id.label("patientid"),
+        func.min(p.Timestamp).label("data_begin"),
+        func.max(p.Timestamp).label("data_end"),
+        func.max(p.BedLabel).label("bedlabel"),
+        func.max(p.AdmitState).label("admitstate"),
+        func.max(p.ClinicalUnit).label("clinicalunit"),
+        func.max(p.Gender).label("gender"),
+    )
+    q = q.group_by(p.Id)
+
+    if patientid:
+        q = q.where(p.Id == patientid)
+    if bedlabel:
+        q = q.where(p.BedLabel == bedlabel)
+    if clinicalunit:
+        q = q.where(p.ClinicalUnit == clinicalunit)
+    if dtbegin:
+        q = q.where(p.Timestamp >= dtbegin)
+    if dtend:
+        q = q.where(p.Timestamp <= dtend)
     return q
