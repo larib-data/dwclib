@@ -99,6 +99,27 @@ def read_patients(
     return df
 
 
+def read_patient_dwc_native(*args, **kwargs) -> Optional[pd.Series]:
+    """Reads a single patient from DWC database with the need of dwcmeta.
+
+    Retrieves a pandas series consisting of the patient which matches the search criteria.
+
+    Args:
+        patientid: A DWC patient identifier
+        dtbegin: The beginning of available data samples
+        dtend: The end of available data samples
+        clinicalunit: The clinical unit the patient belongs to
+        bedlabel: The bed / room in which the patient stays
+        uri: Optional sqlalchemy URI for the database if not provided in the config file
+
+    Returns:
+        A pandas series corresponding to a patient stay.
+    """  # noqa: DAR101,DAR102
+    res = read_patients_dwc_native(*args, **kwargs, limit=1)
+    if len(res):
+        return res.iloc[0]
+
+
 def read_patients_dwc_native(
     patientid: str = None,
     dtbegin: str = None,
