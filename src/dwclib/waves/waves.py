@@ -26,12 +26,26 @@ def read_waves(
     return unfold_pandas_dataframe(df)
 
 
+def read_wave_chunks(
+    patientid: str,
+    dtbegin: Union[str, datetime],
+    dtend: Union[str, datetime],
+    labels: Optional[List[str]] = None,
+    uri: str = None,
+) -> pd.DataFrame:
+    if not uri:
+        uri = dwcuri
+    if labels is None:
+        labels = []
+    return run_waves_query(uri, dtbegin, dtend, patientid, labels)
+
+
 def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # TODO: see if we can efficiently pre-allocate buffer
     databuffer = defaultdict(list)
     for _, row in df.iterrows():
         srow = unfold_row(row)
-        databuffer[row['Label']].append(srow)
+        databuffer[row["Label"]].append(srow)
     if not databuffer:
         return waves_meta
     concatter = dictconcatter(databuffer)

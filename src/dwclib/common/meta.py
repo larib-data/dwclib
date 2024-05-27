@@ -3,12 +3,12 @@ from dask.dataframe.utils import make_meta
 
 
 def build_numerics_meta():
-    idx = pd.DatetimeIndex([], name='TimeStamp', tz='UTC')
+    idx = pd.DatetimeIndex([], name="TimeStamp", tz="UTC")
     dtypes = {
-        'PatientId': 'string',
-        'Label': 'string',
-        'SubLabel': 'string',
-        'Value': 'float32',
+        "PatientId": "string",
+        "Label": "string",
+        "SubLabel": "string",
+        "Value": "float32",
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
@@ -16,16 +16,16 @@ def build_numerics_meta():
 
 
 def build_waves_meta():
-    idx = pd.DatetimeIndex([], name='TimeStamp', tz='UTC')
+    idx = pd.DatetimeIndex([], name="TimeStamp", tz="UTC")
     dtypes = {
-        'PatientId': 'string',
-        'Label': 'string',
-        'WaveSamples': 'object',
-        'SamplePeriod': 'int32',
-        'CAU': 'float64',
-        'CAL': 'float64',
-        'CSU': 'int32',
-        'CSL': 'int32',
+        "PatientId": "string",
+        "Label": "string",
+        "WaveSamples": "object",
+        "SamplePeriod": "int32",
+        "CAU": "float64",
+        "CAL": "float64",
+        "CSU": "int32",
+        "CSL": "int32",
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
@@ -33,11 +33,11 @@ def build_waves_meta():
 
 
 def build_enumerations_meta():
-    idx = pd.DatetimeIndex([], name='TimeStamp', tz='UTC')
+    idx = pd.DatetimeIndex([], name="TimeStamp", tz="UTC")
     dtypes = {
-        'PatientId': 'string',
-        'Label': 'string',
-        'Value': 'string',
+        "PatientId": "string",
+        "Label": "string",
+        "Value": "string",
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)

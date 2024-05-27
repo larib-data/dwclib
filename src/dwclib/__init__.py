@@ -9,7 +9,7 @@ from dwclib.patients import (
     read_patients,
     read_patients_dwc_native,
 )
-from dwclib.waves import read_waves
+from dwclib.waves import read_wave_chunks, read_waves
 
 __all__ = [
     "common",
@@ -20,6 +20,7 @@ __all__ = [
     "dask",
     "assets",
     "read_waves",
+    "read_wave_chunks",
     "read_numerics",
     "read_patients",
     "read_patients_dwc_native",

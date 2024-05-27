@@ -27,7 +27,7 @@ def read_numerics(
     if is_list_like(patientids) and len(patientids) == 1:
         patientids = patientids[0]
     df = run_numerics_query(uri, dtbegin, dtend, patientids, labels, sublabels)
-    df = df.dropna(axis=0, how='any', subset=['Value'])
+    df = df.dropna(axis=0, how="any", subset=["Value"])
     if not len(df.index):
         return numerics_meta
     if pivot:
@@ -43,8 +43,8 @@ def read_numerics(
 def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     df = df.pivot_table(
         index=df.index,
-        columns=['PatientId', 'SubLabel'],
-        values='Value',
-        aggfunc='max',
+        columns=["PatientId", "SubLabel"],
+        values="Value",
+        aggfunc="max",
     )
     return df

@@ -21,16 +21,16 @@ configfile = config_dir / "config.ini"
 if configfile.exists():
     config = ConfigParser()
     config.read(configfile)
-    dwcdriver = config.get('dwc', 'driver', fallback=odbcdriver)
+    dwcdriver = config.get("dwc", "driver", fallback=odbcdriver)
     if dwcdriver is None:
-        warn('No ODBC driver found for DWC', RuntimeWarning)
+        warn("No ODBC driver found for DWC", RuntimeWarning)
 
     dwcuri = URL.create(
-        'mssql+pyodbc',
-        username=config.get('dwc', 'user'),
-        password=config.get('dwc', 'pass'),
-        host=config.get('dwc', 'host'),
-        database=config.get('dwc', 'dbname'),
+        "mssql+pyodbc",
+        username=config.get("dwc", "user"),
+        password=config.get("dwc", "pass"),
+        host=config.get("dwc", "host"),
+        database=config.get("dwc", "dbname"),
         query={
             "driver": dwcdriver,
             "Encrypt": "no",
@@ -38,11 +38,11 @@ if configfile.exists():
     )
 
     pguri = URL.create(
-        'postgresql',
-        username=config.get('dwcmeta', 'user'),
-        password=config.get('dwcmeta', 'pass'),
-        host=config.get('dwcmeta', 'host'),
-        database=config.get('dwcmeta', 'dbname'),
+        "postgresql",
+        username=config.get("dwcmeta", "user"),
+        password=config.get("dwcmeta", "pass"),
+        host=config.get("dwcmeta", "host"),
+        database=config.get("dwcmeta", "dbname"),
     )
 else:
     warn(f"Configuration file {configfile} does not exist.", RuntimeWarning)

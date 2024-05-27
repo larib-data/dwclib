@@ -13,7 +13,7 @@ def unfold_pandas_dataframe(
     df: pd.DataFrame, columns: List[str], meta: pd.DataFrame
 ) -> pd.DataFrame:
     idx = pd.MultiIndex.from_arrays(
-        [df.index, df['Label']], names=('TimeStamp', 'Label')
+        [df.index, df["Label"]], names=("TimeStamp", "Label")
     )
     df = df.set_index(idx)
     unfolded = df.apply(unfold_row, axis=1)
@@ -29,10 +29,10 @@ def convert_dataframe(
     ddf: dd.DataFrame, labels: List[str], npartitions: Optional[int] = None
 ) -> dd.DataFrame:
     if not labels:
-        labels = ddf['Label'].unique().compute()
+        labels = ddf["Label"].unique().compute()
     labels = sorted(set(labels))
-    dfmeta = pd.DataFrame(columns=labels, dtype='float32')
-    idx = pd.DatetimeIndex([], name='TimeStamp')
+    dfmeta = pd.DataFrame(columns=labels, dtype="float32")
+    idx = pd.DatetimeIndex([], name="TimeStamp")
     meta = make_meta(dfmeta, index=idx)
     if not npartitions:
         npartitions = 20 * ddf.npartitions
