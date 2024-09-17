@@ -1,8 +1,7 @@
 from typing import List, Optional
-
 import pandas as pd
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
-
+import sqlalchemy
 from dwclib.common.db import dwcuri, pguri
 
 
@@ -27,6 +26,7 @@ def read_patient(*args, **kwargs) -> Optional[pd.Series]:
     Returns:
         A pandas series corresponding to a patient stay.
     """  # noqa: DAR101,DAR102
+
     res = read_patients(*args, **kwargs, limit=1)
     if len(res):
         return res.iloc[0]
@@ -95,7 +95,10 @@ def read_patients(
         q = q.limit(limit)
     engine = create_engine(uri)
     with engine.connect() as conn:
-        df = pd.read_sql(q, conn, index_col="patientid")
+        try:
+            df = pd.read_sql(q, conn, index_col="patientid")
+        except sqlalchemy.exc.DataError:
+            df = pd.DataFrame([])
     return df
 
 
