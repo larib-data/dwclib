@@ -7,13 +7,10 @@ Python wrapper to DataWarehouse Connect.
 
 `pip install dwclib`
 
-Installation through conda greatly simplifies dependency management.
-
-Additionally, Microsoft SQL Server drivers are needed and will need to be installed seperately.
-See here for more information: https://github.com/mkleehammer/pyodbc/wiki
-
-
 ## Changelog
+- 2024.9.17
+    - Support reading waves in binary chunks without conversion
+
 - 2024.5.10
     - Support searching patients directly in DWC without DWCmeta
 
