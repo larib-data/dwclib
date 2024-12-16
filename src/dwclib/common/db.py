@@ -26,7 +26,7 @@ if configfile.exists():
 
     try:
         pguri = URL.create(
-            "postgresql",
+            "postgresql+psycopg",
             username=config.get("dwcmeta", "user"),
             password=config.get("dwcmeta", "pass"),
             host=config.get("dwcmeta", "host"),
