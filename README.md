@@ -8,6 +8,9 @@ Python wrapper to DataWarehouse Connect.
 `pip install dwclib`
 
 ## Changelog
+- 2024.12.27
+    - Support updating the config file through the API
+
 - 2024.9.17
     - Support reading waves in binary chunks without conversion
 

@@ -4,12 +4,22 @@ from warnings import warn
 from platformdirs import user_config_dir
 from sqlalchemy.engine import URL
 
-config_dir = Path(user_config_dir(appname="larib-data", appauthor="larib-data"))
-configfile = config_dir / "config.ini"
 dwcuri = None
 pguri = None
+config_dir = Path(user_config_dir(appname="larib-data", appauthor="larib-data"))
+configfile = config_dir / "config.ini"
 
-if configfile.exists():
+
+def update_config(newconfig):
+    config = configparser.ConfigParser()
+    config.read_string(newconfig)
+    with open(configfile, "w") as fd:
+        config.write(fd)
+    load_config()
+
+
+def load_config():
+    global dwcuri, pguri
     config = configparser.ConfigParser()
     config.read(configfile)
 
@@ -34,5 +44,9 @@ if configfile.exists():
         )
     except configparser.NoOptionError:
         warn(f"No valid DWCmeta configuration in {configfile}.", RuntimeWarning)
+
+
+if configfile.exists():
+    load_config()
 else:
     warn(f"Configuration file {configfile} does not exist.", RuntimeWarning)
