@@ -13,6 +13,7 @@ configfile = config_dir / "config.ini"
 def update_config(newconfig):
     config = configparser.ConfigParser()
     config.read_string(newconfig)
+    configfile.parent.mkdir(parents=True, exist_ok=True)
     with open(configfile, "w") as fd:
         config.write(fd)
     load_config()
