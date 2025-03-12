@@ -6,7 +6,7 @@ from sqlalchemy.engine import URL
 
 dwcuri = None
 pguri = None
-config_dir = Path(user_config_dir(appname="larib-data", appauthor="larib-data"))
+config_dir = Path(user_config_dir(appname="larib-data", appauthor="larib-data", roaming=True))
 configfile = config_dir / "config.ini"
 
 

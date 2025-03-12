@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "dwclib"
-version = "2024.12.28"
+version = "2025.3.12"
 description = "Python wrapper to DataWarehouse Connect"
 authors = ["Jona Joachim <jona@joachim.cc>"]
 license = "ISC"
@@ -18,9 +18,9 @@ pandas = "^2"
 SQLAlchemy = "^2"
 platformdirs = "^3"
 pyarrow = ">=14"
-pymssql = "^2.3.1"
-dask = {extras = ["dataframe"], version = "^2024.4.1"}
-psycopg = {version = "^3.2.3 ", extras = ["binary"], optional = true}
+pymssql = "^2.3"
+dask = {extras = ["dataframe"], version = "^2024.4.1", optional = true}
+psycopg = {version = "^3.2.5 ", extras = ["binary"], optional = true}
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
