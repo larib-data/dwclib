@@ -43,6 +43,16 @@ def build_enumerations_meta():
     mdf = mdf.astype(dtype=dtypes)
     return make_meta(mdf)
 
+def build_patients_meta():
+    idx = pd.Index([], dtype=object, name='PatientId')
+    dtypes = {
+        "PatientId": "string",
+        "Label": "string",
+        "Value": "string",
+    }
+    mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
+    mdf = mdf.astype(dtype=dtypes)
+    return make_meta(mdf)
 
 numerics_meta = build_numerics_meta()
 waves_meta = build_waves_meta()

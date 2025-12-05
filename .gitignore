@@ -72,3 +72,9 @@ docs/_build
 
 # Mypy Cache
 .mypy_cache/
+
+# UV lock
+uv.lock
+
+# Poetry lock
+poetry.lock
