@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 import pandas as pd
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
@@ -37,8 +38,8 @@ def read_patients(
     name: str = None,
     firstname: str = None,
     ipp: str = None,
-    dtbegin: str = None,
-    dtend: str = None,
+    dtbegin: datetime | None = None,
+    dtend: datetime | None = None,
     clinicalunit: str = None,
     bedlabel: str = None,
     wavelabels: Optional[List[str]] = None,
@@ -125,8 +126,8 @@ def read_patient_dwc_native(*args, **kwargs) -> Optional[pd.Series]:
 
 def read_patients_dwc_native(
     patientid: str = None,
-    dtbegin: str = None,
-    dtend: str = None,
+    dtbegin: datetime | None = None,
+    dtend: datetime | None = None,
     clinicalunit: str = None,
     bedlabel: str = None,
     uri: Optional[str] = None,

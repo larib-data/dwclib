@@ -11,8 +11,8 @@ from dwclib.common.meta import enumerations_meta
 
 def read_enumerations(
     patientids: Union[None, str, List[str]],
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     labels: Optional[List[str]] = None,
     pivot: bool = True,
     uri: Optional[str] = None,
@@ -26,8 +26,8 @@ def read_enumerations(
         patientids: A DWC patient identifier or list of identifiers. Pass None to
             retrieve every patient with data in the window. A single-element list is
             unwrapped and treated as a single patient.
-        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
-        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        dtbegin: Start of the time window (inclusive), as a datetime.
+        dtend: End of the time window (exclusive), as a datetime.
         labels: Optional list of enumeration labels to restrict the query. Empty or None
             returns all labels.
         pivot: If True (default), return a wide frame indexed by timestamp with one
@@ -45,12 +45,13 @@ def read_enumerations(
     Examples:
         Fetch enumerations for a single patient in long form::
 
+            from datetime import datetime
             from dwclib import read_enumerations
 
             df = read_enumerations(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T01:00:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 1),
                 pivot=False,
             )
     """
@@ -84,8 +85,8 @@ def pivot_enumerations(df: pd.DataFrame) -> Optional[pd.DataFrame]:
 
 def run_enumerations_query(
     uri: str,
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     patientids: Union[None, str, List[str]],
     labels: List[str],
 ) -> pd.DataFrame:

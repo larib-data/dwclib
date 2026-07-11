@@ -11,8 +11,8 @@ from dwclib.common.numerics import run_numerics_query
 
 def read_numerics(
     patientids: Union[None, str, List[str]],
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     labels: Optional[List[str]] = None,
     sublabels: Optional[List[str]] = None,
     pivot: bool = True,
@@ -27,8 +27,8 @@ def read_numerics(
         patientids: A DWC patient identifier or list of identifiers. Pass None to
             retrieve every patient with data in the window. A single-element list is
             unwrapped and treated as a single patient.
-        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
-        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        dtbegin: Start of the time window (inclusive), as a datetime.
+        dtend: End of the time window (exclusive), as a datetime.
         labels: Optional list of numeric labels to restrict the query
             (e.g. ``["HR", "NBP"]``). Empty or None returns all labels.
         sublabels: Optional list of numeric sublabels to restrict the query
@@ -48,12 +48,13 @@ def read_numerics(
     Examples:
         Fetch two signals for a single patient as a pivoted frame::
 
+            from datetime import datetime
             from dwclib import read_numerics
 
             df = read_numerics(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T01:00:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 1),
                 labels=["HR", "NBP"],
             )
 
@@ -61,8 +62,8 @@ def read_numerics(
 
             df = read_numerics(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T01:00:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 1),
                 pivot=False,
             )
     """

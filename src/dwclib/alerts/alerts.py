@@ -13,8 +13,8 @@ from dwclib.common.db import dwcuri
 
 def read_alerts(
     patientids: Union[None, str, List[str]],
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     uri: Optional[str] = None,
 ) -> pd.DataFrame:
     """Reads alerts from the DWC database.
@@ -27,8 +27,8 @@ def read_alerts(
         patientids: A DWC patient identifier or list of identifiers. Pass None to
             retrieve alerts for every patient in the window. A single-element list is
             unwrapped and treated as a single patient.
-        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
-        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        dtbegin: Start of the time window (inclusive), as a datetime.
+        dtend: End of the time window (exclusive), as a datetime.
         uri: Optional sqlalchemy URI for the database if not provided in the config file.
 
     Returns:
@@ -40,12 +40,13 @@ def read_alerts(
     Examples:
         Fetch all alerts for a patient over one hour::
 
+            from datetime import datetime
             from dwclib import read_alerts
 
             df = read_alerts(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T01:00:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 1),
             )
     """
     if not uri:
@@ -58,8 +59,8 @@ def read_alerts(
 
 def run_alerts_query(
     uri: str,
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     patientids: Union[None, str, List[str]],
 ) -> pd.DataFrame:
     engine = create_engine(uri)

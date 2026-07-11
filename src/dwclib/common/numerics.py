@@ -9,8 +9,8 @@ from sqlalchemy import MetaData, Table, create_engine, join, select
 
 def run_numerics_query(
     uri: str,
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     patientids: Union[None, str, List[str]],
     labels: List[str],
     sublabels: List[str],

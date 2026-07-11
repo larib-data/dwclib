@@ -262,23 +262,25 @@ numerics queries can return millions of samples, so keep time windows narrow and
 raw data in your own code rather than through MCP.
 
 Time bounds are half-open: ``dtbegin <= TimeStamp < dtend``. ``dtbegin``/``dtend``
-accept ISO-8601 strings or datetimes. Connection URIs come from the server-side config
+must be ``datetime`` objects. Connection URIs come from the server-side config
 file, so omit the ``uri`` argument.
 
 End-to-end example::
 
+    from datetime import datetime
     from dwclib import read_patients, read_numerics, read_waves
 
     # 1. Discover a patient and the labels/time bounds available for them.
-    patients = read_patients(bedlabel="ICU-3", dtbegin="2021-01-01", dtend="2021-01-02")
+    patients = read_patients(bedlabel="ICU-3",
+                             dtbegin=datetime(2021, 1, 1), dtend=datetime(2021, 1, 2))
     pid = patients.index[0]
 
     # 2. Pull numerics for the discovered labels and window.
-    nums = read_numerics(pid, "2021-01-01T08:00:00", "2021-01-01T09:00:00",
+    nums = read_numerics(pid, datetime(2021, 1, 1, 8), datetime(2021, 1, 1, 9),
                          labels=["HR", "NBP"])
 
     # 3. Pull a narrow waveform window.
-    waves = read_waves(pid, "2021-01-01T08:00:00", "2021-01-01T08:01:00",
+    waves = read_waves(pid, datetime(2021, 1, 1, 8), datetime(2021, 1, 1, 8, 1),
                        labels=["II"])
 
 ## Function reference

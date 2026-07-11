@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import pandas as pd
 
@@ -13,8 +13,8 @@ from dwclib.common.waves import run_waves_query
 
 def read_waves(
     patientid: str,
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     labels: Optional[List[str]] = None,
     uri: str = None,
 ) -> pd.DataFrame:
@@ -27,8 +27,8 @@ def read_waves(
 
     Args:
         patientid: A DWC patient identifier.
-        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
-        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        dtbegin: Start of the time window (inclusive), as a datetime.
+        dtend: End of the time window (exclusive), as a datetime.
         labels: Optional list of waveform labels to restrict the query
             (e.g. ``["II", "Pleth"]``). Empty or None returns all labels.
         uri: Optional sqlalchemy URI for the database if not provided in the config file.
@@ -42,12 +42,13 @@ def read_waves(
     Examples:
         Fetch the lead II ECG for a single patient over one minute::
 
+            from datetime import datetime
             from dwclib import read_waves
 
             df = read_waves(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T00:01:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 0, 1),
                 labels=["II"],
             )
     """
@@ -61,8 +62,8 @@ def read_waves(
 
 def read_wave_chunks(
     patientid: str,
-    dtbegin: Union[str, datetime],
-    dtend: Union[str, datetime],
+    dtbegin: datetime,
+    dtend: datetime,
     labels: Optional[List[str]] = None,
     uri: str = None,
 ) -> pd.DataFrame:
@@ -74,8 +75,8 @@ def read_wave_chunks(
 
     Args:
         patientid: A DWC patient identifier.
-        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
-        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        dtbegin: Start of the time window (inclusive), as a datetime.
+        dtend: End of the time window (exclusive), as a datetime.
         labels: Optional list of waveform labels to restrict the query
             (e.g. ``["II", "Pleth"]``). Empty or None returns all labels.
         uri: Optional sqlalchemy URI for the database if not provided in the config file.
@@ -89,12 +90,13 @@ def read_wave_chunks(
     Examples:
         Fetch the raw packed chunks for a single patient::
 
+            from datetime import datetime
             from dwclib import read_wave_chunks
 
             df = read_wave_chunks(
                 "abcd1234-ef56-7890-abcd-ef1234567890",
-                "2021-01-01T00:00:00",
-                "2021-01-01T00:01:00",
+                datetime(2021, 1, 1),
+                datetime(2021, 1, 1, 0, 1),
                 labels=["II"],
             )
     """
