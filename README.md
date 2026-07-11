@@ -3,11 +3,12 @@ Python wrapper to DataWarehouse Connect.
 -   Free software: ISC license
 
 ## Installation
-`conda install -c conda-forge dwclib`
-
 `pip install dwclib`
 
 ## Changelog
+- 2026.07.11
+    - Update documentation, add MCP server, update dependencies, move from poetry to uv
+
 - 2024.12.27
     - Support updating the config file through the API
 
