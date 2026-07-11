@@ -65,12 +65,14 @@ Tools
 
 **Convenience summaries (secondary):**
 
+Each takes a single ``patient_id`` and summarises that patient's whole stay — no need
+to discover time bounds first. The tool looks up the patient's full data range in the
+native DWC (MSSQL) database and summarises over it. Pass optional ``dtbegin``/``dtend``
+(ISO-8601) to narrow the window; each defaults to the patient's full data range.
+
 ``dwclib_numerics_summary``
    Wraps :func:`dwclib.read_numerics`. Per-signal statistics (count, min, max, mean,
    std) and time coverage.
-
-``dwclib_waves_summary``
-   Wraps :func:`dwclib.read_waves`. Per-label statistics from the unfolded frame.
 
 ``dwclib_enumerations_summary``
    Wraps :func:`dwclib.read_enumerations`. Categorical statistics (distinct count, value
@@ -100,10 +102,14 @@ Workflow
 
 The intended agent workflow is **discover, then generate code**:
 
-1. Call ``dwclib_search_patients`` to find a patient and discover the available labels
-   and data time bounds.
-2. Read ``dwclib://reference`` to get the exact signatures of the ``read_*`` functions.
-3. Generate and run Python that calls dwclib directly — e.g.
+1. Call ``dwclib_search_patients`` to find a patient (by name, bed, unit, labels, …)
+   and its ``patient_id``.
+2. Optionally call a summary tool (``dwclib_numerics_summary``,
+   ``dwclib_enumerations_summary``, ``dwclib_read_alerts``) with just that
+   ``patient_id`` for a quick look at the whole stay — the tool resolves the time range
+   itself, so no separate bounds step is needed.
+3. Read ``dwclib://reference`` to get the exact signatures of the ``read_*`` functions.
+4. Generate and run Python that calls dwclib directly — e.g.
    ``read_numerics(patientid, dtbegin, dtend, labels)`` or
-   ``read_waves(patientid, dtbegin, dtend, labels)`` — using the discovered labels and
-   time window to pull the bulk data outside the MCP context.
+   ``read_waves(patientid, dtbegin, dtend, labels)`` — to pull the bulk data outside the
+   MCP context.

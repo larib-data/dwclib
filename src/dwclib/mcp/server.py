@@ -8,6 +8,7 @@ code-generation reference. The convenience summary tools are deliberately lean.
 """
 
 import inspect
+from datetime import timedelta
 from typing import List, Optional
 
 from fastmcp import FastMCP
@@ -26,12 +27,12 @@ from dwclib import (
 from dwclib.common.dt import to_datetime
 from dwclib.mcp.formatting import (
     ResponseFormat,
+    _wrap_error,
     config_missing,
     dataframe_to_response,
     handle_error,
     summarize_categorical,
     summarize_numeric,
-    summarize_waves,
 )
 
 mcp = FastMCP("dwclib_mcp")
@@ -133,81 +134,101 @@ def dwclib_search_patients_native(
 # --------------------------------------------------------------------------- #
 # Convenience summaries (secondary surface)
 # --------------------------------------------------------------------------- #
+def _resolve_window(
+    patient_id: str,
+    dtbegin: Optional[str],
+    dtend: Optional[str],
+    response_format: ResponseFormat,
+):
+    """Resolve the summary time window, defaulting to the patient's full data range.
+
+    ``dtbegin``/``dtend`` are optional ISO-8601 strings; any that is missing is filled
+    from the patient's stored data bounds, looked up in the native DWC (MSSQL) database
+    — the same database the summaries themselves read from, so no DWCmeta is required.
+
+    Args:
+        patient_id: The DWC patient identifier to bound the window to.
+        dtbegin: Optional inclusive start; ``None`` uses the patient's ``data_begin``.
+        dtend: Optional exclusive end; ``None`` uses the patient's ``data_end`` (plus a
+            one-second nudge so the half-open query still includes the final sample).
+        response_format: Format for the error payload if the patient can't be found.
+
+    Returns:
+        A ``(dtbegin, dtend)`` tuple of datetimes, or an error payload when the patient
+        is not found in the database.
+    """
+    begin = to_datetime(dtbegin) if dtbegin else None
+    end = to_datetime(dtend) if dtend else None
+    if begin is not None and end is not None:
+        return begin, end
+    patient = read_patient_dwc_native(patientid=patient_id)
+    if patient is None:
+        return _wrap_error(f"No patient found for id {patient_id!r}.", response_format)
+    if begin is None:
+        begin = to_datetime(patient["data_begin"])
+    if end is None:
+        # Half-open queries exclude dtend, so nudge past the last sample.
+        end = to_datetime(patient["data_end"]) + timedelta(seconds=1)
+    return begin, end
+
+
 @mcp.tool(annotations=READ_ONLY)
 def dwclib_numerics_summary(
-    patientids: Optional[List[str]],
-    dtbegin: str,
-    dtend: str,
+    patient_id: str,
     labels: Optional[List[str]] = None,
     sublabels: Optional[List[str]] = None,
+    dtbegin: Optional[str] = None,
+    dtend: Optional[str] = None,
     response_format: ResponseFormat = ResponseFormat.json,
 ):
-    """Summarise numeric parameters over a time window.
+    """Summarise a patient's numeric parameters.
 
-    Returns per-signal (PatientId, Label, SubLabel) statistics — count, min, max,
-    mean, std and time coverage — for a quick look. For the raw samples, generate
-    dwclib code calling ``read_numerics`` (see the ``dwclib://reference`` resource).
+    Give a ``patient_id`` and the tool summarises that patient's whole stay — no need
+    to discover time bounds first. Returns per-signal (PatientId, Label, SubLabel)
+    statistics — count, min, max, mean, std and time coverage. Pass ``dtbegin``/``dtend``
+    (ISO-8601) to narrow the window; each defaults to the patient's full data range.
+    For the raw samples, generate dwclib code calling ``read_numerics`` (see the
+    ``dwclib://reference`` resource).
     """  # noqa: DAR101,DAR201
     err = config_missing("dwc", response_format)
     if err is not None:
         return err
     try:
-        dtbegin = to_datetime(dtbegin)
-        dtend = to_datetime(dtend)
-        df = read_numerics(patientids, dtbegin, dtend, labels, sublabels, pivot=False)
+        window = _resolve_window(patient_id, dtbegin, dtend, response_format)
+        if not isinstance(window, tuple):
+            return window
+        dtbegin, dtend = window
+        df = read_numerics(patient_id, dtbegin, dtend, labels, sublabels, pivot=False)
         return dataframe_to_response(summarize_numeric(df), response_format)
     except Exception as exc:  # noqa: BLE001
         return handle_error(exc, response_format)
 
 
 @mcp.tool(annotations=READ_ONLY)
-def dwclib_waves_summary(
-    patientid: str,
-    dtbegin: str,
-    dtend: str,
-    labels: Optional[List[str]] = None,
-    response_format: ResponseFormat = ResponseFormat.json,
-):
-    """Summarise high-frequency waveforms over a time window.
-
-    Returns per-label statistics (count, min, max, mean, std, time coverage) from the
-    unfolded frame. Keep the window narrow: a raw waveform query can return millions
-    of samples, which is why only summaries are exposed here — pull the samples with
-    generated ``read_waves`` code.
-    """  # noqa: DAR101,DAR201
-    err = config_missing("dwc", response_format)
-    if err is not None:
-        return err
-    try:
-        dtbegin = to_datetime(dtbegin)
-        dtend = to_datetime(dtend)
-        df = read_waves(patientid, dtbegin, dtend, labels)
-        return dataframe_to_response(summarize_waves(df), response_format)
-    except Exception as exc:  # noqa: BLE001
-        return handle_error(exc, response_format)
-
-
-@mcp.tool(annotations=READ_ONLY)
 def dwclib_enumerations_summary(
-    patientids: Optional[List[str]],
-    dtbegin: str,
-    dtend: str,
+    patient_id: str,
     labels: Optional[List[str]] = None,
+    dtbegin: Optional[str] = None,
+    dtend: Optional[str] = None,
     response_format: ResponseFormat = ResponseFormat.json,
 ):
-    """Summarise enumerations (categorical parameters) over a time window.
+    """Summarise a patient's enumerations (categorical parameters).
 
-    Returns per-(PatientId, Label) statistics — distinct value count, value counts and
-    time coverage. For the raw values, generate dwclib code calling
+    Give a ``patient_id`` and the tool summarises that patient's whole stay. Returns
+    per-(PatientId, Label) statistics — distinct value count, value counts and time
+    coverage. Pass ``dtbegin``/``dtend`` (ISO-8601) to narrow the window; each defaults
+    to the patient's full data range. For the raw values, generate dwclib code calling
     ``read_enumerations``.
     """  # noqa: DAR101,DAR201
     err = config_missing("dwc", response_format)
     if err is not None:
         return err
     try:
-        dtbegin = to_datetime(dtbegin)
-        dtend = to_datetime(dtend)
-        df = read_enumerations(patientids, dtbegin, dtend, labels, pivot=False)
+        window = _resolve_window(patient_id, dtbegin, dtend, response_format)
+        if not isinstance(window, tuple):
+            return window
+        dtbegin, dtend = window
+        df = read_enumerations(patient_id, dtbegin, dtend, labels, pivot=False)
         return dataframe_to_response(summarize_categorical(df), response_format)
     except Exception as exc:  # noqa: BLE001
         return handle_error(exc, response_format)
@@ -215,24 +236,29 @@ def dwclib_enumerations_summary(
 
 @mcp.tool(annotations=READ_ONLY)
 def dwclib_read_alerts(
-    patientids: Optional[List[str]],
-    dtbegin: str,
-    dtend: str,
+    patient_id: str,
+    dtbegin: Optional[str] = None,
+    dtend: Optional[str] = None,
     response_format: ResponseFormat = ResponseFormat.json,
     max_rows: int = 200,
 ):
-    """Read patient-monitor alerts over a time window.
+    """Read a patient's monitor alerts.
 
-    Alerts are already aggregated to one row per alarm and small enough to return
+    Give a ``patient_id`` and the tool returns that patient's alerts over their whole
+    stay. Alerts are already aggregated to one row per alarm and small enough to return
     directly, with human-readable label, kind and severity from the bundled reference.
+    Pass ``dtbegin``/``dtend`` (ISO-8601) to narrow the window; each defaults to the
+    patient's full data range.
     """  # noqa: DAR101,DAR201
     err = config_missing("dwc", response_format)
     if err is not None:
         return err
     try:
-        dtbegin = to_datetime(dtbegin)
-        dtend = to_datetime(dtend)
-        df = read_alerts(patientids, dtbegin, dtend)
+        window = _resolve_window(patient_id, dtbegin, dtend, response_format)
+        if not isinstance(window, tuple):
+            return window
+        dtbegin, dtend = window
+        df = read_alerts(patient_id, dtbegin, dtend)
         return dataframe_to_response(df, response_format, max_rows=max_rows)
     except Exception as exc:  # noqa: BLE001
         return handle_error(exc, response_format)

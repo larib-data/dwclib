@@ -174,38 +174,6 @@ def summarize_categorical(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=cols)
 
 
-def summarize_waves(df: pd.DataFrame) -> pd.DataFrame:
-    """Summarise an unfolded waveforms frame per label.
-
-    Args:
-        df: The frame returned by ``read_waves`` (indexed by ``TimeStamp`` with one
-            column per waveform label).
-
-    Returns:
-        A dataframe with one row per label holding ``count``, ``min``, ``max``,
-        ``mean``, ``std`` and the ``first``/``last`` sample timestamps.
-    """
-    cols = ["Label", "count", "min", "max", "mean", "std", "first", "last"]
-    if df.empty:
-        return pd.DataFrame(columns=cols)
-    rows = []
-    for label in df.columns:
-        s = df[label].dropna()
-        if s.empty:
-            continue
-        rows.append({
-            "Label": str(label),
-            "count": int(s.count()),
-            "min": float(s.min()),
-            "max": float(s.max()),
-            "mean": float(s.mean()),
-            "std": float(s.std()),
-            "first": s.index.min(),
-            "last": s.index.max(),
-        })
-    return pd.DataFrame(rows, columns=cols)
-
-
 def _error_message(exc: Exception) -> str:
     """Turn an exception into a short, actionable message."""
     from dwclib.common import db

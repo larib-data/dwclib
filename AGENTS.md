@@ -18,9 +18,13 @@ All tools are read-only. Primary and secondary surfaces:
   Returns patient IDs, time bounds, available wave/numeric labels, and bed/unit.
 - `dwclib_search_patients_native` — MSSQL fallback for when DWCmeta is
   unavailable (no label arrays, but still IDs, time bounds, bed/unit).
+
+The summary tools below take just a `patient_id` and summarise that patient's
+whole stay — no separate bounds-discovery step. Pass optional `dtbegin`/`dtend`
+to narrow the window; each defaults to the patient's full data range.
+
 - `dwclib_numerics_summary` — per-signal stats (count, min, max, mean, std) and
   time coverage.
-- `dwclib_waves_summary` — per-label waveform stats from the unfolded frame.
 - `dwclib_enumerations_summary` — categorical stats (distinct/value counts).
 - `dwclib_read_alerts` — monitor alerts, aggregated and returned directly.
 
