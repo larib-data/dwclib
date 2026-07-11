@@ -23,6 +23,7 @@ from dwclib import (
     read_wave_chunks,
     read_waves,
 )
+from dwclib.common.dt import to_datetime
 from dwclib.mcp.formatting import (
     ResponseFormat,
     config_missing,
@@ -73,6 +74,8 @@ def dwclib_search_patients(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_patients(
             patientid=patientid,
             name=name,
@@ -112,6 +115,8 @@ def dwclib_search_patients_native(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_patients_dwc_native(
             patientid=patientid,
             dtbegin=dtbegin,
@@ -147,6 +152,8 @@ def dwclib_numerics_summary(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_numerics(patientids, dtbegin, dtend, labels, sublabels, pivot=False)
         return dataframe_to_response(summarize_numeric(df), response_format)
     except Exception as exc:  # noqa: BLE001
@@ -172,6 +179,8 @@ def dwclib_waves_summary(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_waves(patientid, dtbegin, dtend, labels)
         return dataframe_to_response(summarize_waves(df), response_format)
     except Exception as exc:  # noqa: BLE001
@@ -196,6 +205,8 @@ def dwclib_enumerations_summary(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_enumerations(patientids, dtbegin, dtend, labels, pivot=False)
         return dataframe_to_response(summarize_categorical(df), response_format)
     except Exception as exc:  # noqa: BLE001
@@ -219,6 +230,8 @@ def dwclib_read_alerts(
     if err is not None:
         return err
     try:
+        dtbegin = to_datetime(dtbegin)
+        dtend = to_datetime(dtend)
         df = read_alerts(patientids, dtbegin, dtend)
         return dataframe_to_response(df, response_format, max_rows=max_rows)
     except Exception as exc:  # noqa: BLE001
