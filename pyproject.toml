@@ -15,7 +15,7 @@ dependencies = [
     "pandas>=2,<3",
     "SQLAlchemy>=2,<2.0.40",
     "platformdirs>=3,<4",
-    "pyarrow>=14",
+    "pyarrow>=23.0.1",
     "pymssql>=2.3,!=2.3.13,<3",
 ]
 
