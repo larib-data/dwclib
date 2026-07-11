@@ -17,6 +17,37 @@ def read_alerts(
     dtend: Union[str, datetime],
     uri: Optional[str] = None,
 ) -> pd.DataFrame:
+    """Reads alerts from the DWC database.
+
+    Retrieves patient-monitor alerts (alarms) over a time window, aggregated to one
+    row per alert with its begin/end timestamps, and joined against the bundled alert
+    reference to add human-readable labels, kind and severity.
+
+    Args:
+        patientids: A DWC patient identifier or list of identifiers. Pass None to
+            retrieve alerts for every patient in the window. A single-element list is
+            unwrapped and treated as a single patient.
+        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
+        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        uri: Optional sqlalchemy URI for the database if not provided in the config file.
+
+    Returns:
+        A pandas dataframe indexed by the alert begin timestamp, with columns for the
+        alert ``end``, ``alert_label``, and the reference-derived ``source_label``,
+        ``mdc_alert``, ``alert_kind`` and ``severity``. Only alerts with
+        ``dtbegin <= TimeStamp < dtend`` are returned.
+
+    Examples:
+        Fetch all alerts for a patient over one hour::
+
+            from dwclib import read_alerts
+
+            df = read_alerts(
+                "abcd1234-ef56-7890-abcd-ef1234567890",
+                "2021-01-01T00:00:00",
+                "2021-01-01T01:00:00",
+            )
+    """
     if not uri:
         uri = dwcuri
     if is_list_like(patientids) and len(patientids) == 1:

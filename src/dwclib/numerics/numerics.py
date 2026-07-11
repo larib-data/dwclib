@@ -18,6 +18,54 @@ def read_numerics(
     pivot: bool = True,
     uri: Optional[str] = None,
 ) -> pd.DataFrame:
+    """Reads numeric parameters from the DWC database.
+
+    Retrieves periodic numeric measurements (e.g. heart rate, blood pressure,
+    SpO2) for one or several patients over a time window.
+
+    Args:
+        patientids: A DWC patient identifier or list of identifiers. Pass None to
+            retrieve every patient with data in the window. A single-element list is
+            unwrapped and treated as a single patient.
+        dtbegin: Start of the time window (inclusive), as an ISO-8601 string or datetime.
+        dtend: End of the time window (exclusive), as an ISO-8601 string or datetime.
+        labels: Optional list of numeric labels to restrict the query
+            (e.g. ``["HR", "NBP"]``). Empty or None returns all labels.
+        sublabels: Optional list of numeric sublabels to restrict the query
+            (e.g. ``["Systolic", "Diastolic"]``). Empty or None returns all sublabels.
+        pivot: If True (default), return a wide frame indexed by timestamp with one
+            column per signal. If False, return the long frame with columns
+            ``PatientId``, ``Label``, ``SubLabel`` and ``Value``.
+        uri: Optional sqlalchemy URI for the database if not provided in the config file.
+
+    Returns:
+        A pandas dataframe indexed by UTC timestamp. When ``pivot`` is True the columns
+        are a ``(PatientId, SubLabel)`` MultiIndex, with the ``PatientId`` level dropped
+        when a single patient was requested. When ``pivot`` is False the frame is in long
+        form. Only samples with ``dtbegin <= TimeStamp < dtend`` are returned. If no rows
+        match, an empty frame with the numerics dtypes is returned.
+
+    Examples:
+        Fetch two signals for a single patient as a pivoted frame::
+
+            from dwclib import read_numerics
+
+            df = read_numerics(
+                "abcd1234-ef56-7890-abcd-ef1234567890",
+                "2021-01-01T00:00:00",
+                "2021-01-01T01:00:00",
+                labels=["HR", "NBP"],
+            )
+
+        Retrieve the long-form frame for downstream aggregation::
+
+            df = read_numerics(
+                "abcd1234-ef56-7890-abcd-ef1234567890",
+                "2021-01-01T00:00:00",
+                "2021-01-01T01:00:00",
+                pivot=False,
+            )
+    """
     if not uri:
         uri = dwcuri
     if labels is None:
