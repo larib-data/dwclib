@@ -7,6 +7,7 @@ The dwclib Project
 
    license
    reference
+   mcp
 
 
 A Python library which enables queries against Philips DataWarehouse Connect
