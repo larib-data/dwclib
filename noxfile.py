@@ -1,83 +1,60 @@
 import tempfile
-from typing import Any
 
 import nox
 from nox.sessions import Session
 
-nox.options.sessions = "lint", "safety", "docs"
+nox.options.default_venv_backend = "uv"
+nox.options.sessions = ["lint", "audit", "docs"]
 
 locations = ["src/dwclib"]
-python_versions = ["3.10"]
+python_versions = ["3.10", "3.11", "3.12", "3.13"]
 
 
-def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
-    """Install packages constrained by Poetry's lock file.
-    This function is a wrapper for nox.sessions.Session.install. It
-    invokes pip to install packages inside of the session's virtualenv.
-    Additionally, pip is passed a constraints file generated from
-    Poetry's lock file, to ensure that the packages are pinned to the
-    versions specified in poetry.lock. This allows you to manage the
-    packages as Poetry development dependencies.
+def uv_sync(session: Session, *args: str) -> None:
+    """Sync dependencies from uv.lock into the session's virtualenv.
+
+    Runs ``uv sync`` with ``UV_PROJECT_ENVIRONMENT`` pointed at the nox
+    virtualenv so that packages are installed there at the versions
+    pinned in uv.lock, rather than into the project's own environment.
+
     Arguments:
         session: The Session object.
-        args: Command-line arguments for pip.
-        kwargs: Additional keyword arguments for Session.install.
+        args: Extra command-line arguments for ``uv sync``.
     """
-    with tempfile.NamedTemporaryFile() as requirements:
-        session.run(
-            "poetry",
-            "export",
-            "--dev",
-            # "--with dev",
-            "--format=requirements.txt",
-            "--without-hashes",
-            f"--output={requirements.name}",
-            external=True,
-        )
-        session.install(f"--constraint={requirements.name}", *args, **kwargs)
-
-
-@nox.session(python=python_versions)
-def lint(session):
-    args = session.posargs or locations
-    install_with_constraints(
-        session,
-        "flake8",
-        "flake8-bandit",
-        "flake8-bugbear",
-        "flake8-docstrings",
-        "darglint",
+    session.run_install(
+        "uv",
+        "sync",
+        *args,
+        env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
     )
-    session.run("flake8", *args)
 
 
 @nox.session(python=python_versions)
-def safety(session: Session) -> None:
-    """Scan dependencies for insecure packages."""
+def lint(session: Session) -> None:
+    """Lint the source with flake8 and its plugins."""
+    uv_sync(session, "--only-group", "lint")
+    session.run("flake8", *(session.posargs or locations))
+
+
+@nox.session
+def audit(session: Session) -> None:
+    """Scan the locked runtime dependencies for known vulnerabilities."""
+    uv_sync(session, "--only-group", "audit")
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
-            "poetry",
+            "uv",
             "export",
-            "--dev",
-            # "--with dev",
-            "--format=requirements.txt",
-            "--without-hashes",
-            f"--output={requirements.name}",
+            "--no-hashes",
+            "--no-default-groups",
+            "--no-emit-project",
+            f"--output-file={requirements.name}",
             external=True,
         )
-        install_with_constraints(session, "safety")
-        session.run("safety", "check", f"--file={requirements.name}", "--full-report")
+        session.run("pip-audit", "-r", requirements.name)
 
 
-@nox.session(python=python_versions)
+@nox.session
 def docs(session: Session) -> None:
     """Build the documentation."""
-    session.run(
-        "poetry",
-        "install",
-        "--no-dev",
-        # "--only main",
-        external=True,
-    )
-    install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints")
+    uv_sync(session, "--group", "docs")
     session.run("sphinx-build", "docs", "docs/_build")
