@@ -82,7 +82,7 @@ def read_numerics(
     if pivot:
         df = pivot_numerics(df)
     single_patient = patientids is not None and not is_list_like(patientids)
-    if single_patient:
+    if pivot and single_patient:
         df.columns = df.columns.droplevel(0)
     # Other way to check if there is a single patientid:
     # if len(df.columns.get_level_values(0).drop_duplicates()) == 1:

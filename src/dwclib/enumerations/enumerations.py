@@ -68,7 +68,7 @@ def read_enumerations(
     if pivot:
         df = pivot_enumerations(df)
     single_patient = patientids is not None and not is_list_like(patientids)
-    if single_patient:
+    if pivot and single_patient:
         df.columns = df.columns.droplevel(0)
     return df
 
