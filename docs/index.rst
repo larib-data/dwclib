@@ -5,13 +5,13 @@ The dwclib Project
    :hidden:
    :maxdepth: 1
 
-   license
    patients
    numerics
    waves
    alerts
    enumerations
    mcp
+   license
 
 
 A Python library which enables queries against Philips DataWarehouse Connect
