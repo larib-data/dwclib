@@ -17,11 +17,11 @@ dependencies = [
     "platformdirs>=3,<4",
     "pyarrow>=14",
     "pymssql>=2.3,!=2.3.13,<3",
-    "dask[dataframe]>=2024.4.1,<2025",
 ]
 
 [project.optional-dependencies]
 dwcmeta = ["psycopg[binary]>=3.2.3,<4"]
+dask = ["dask[dataframe]>=2024.4.1,<2025"]
 
 [project.urls]
 Repository = "https://github.com/larib-data/dwclib"

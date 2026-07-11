@@ -1,5 +1,4 @@
 import pandas as pd
-from dask.dataframe.utils import make_meta
 
 
 def build_numerics_meta():
@@ -12,7 +11,7 @@ def build_numerics_meta():
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
-    return make_meta(mdf)
+    return mdf
 
 
 def build_waves_meta():
@@ -29,7 +28,7 @@ def build_waves_meta():
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
-    return make_meta(mdf)
+    return mdf
 
 
 def build_enumerations_meta():
@@ -41,7 +40,7 @@ def build_enumerations_meta():
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
-    return make_meta(mdf)
+    return mdf
 
 
 def build_patients_meta():
@@ -53,7 +52,7 @@ def build_patients_meta():
     }
     mdf = pd.DataFrame({k: [] for k in dtypes.keys()}, index=idx)
     mdf = mdf.astype(dtype=dtypes)
-    return make_meta(mdf)
+    return mdf
 
 
 numerics_meta = build_numerics_meta()
