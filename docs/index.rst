@@ -6,7 +6,11 @@ The dwclib Project
    :maxdepth: 1
 
    license
-   reference
+   patients
+   numerics
+   waves
+   alerts
+   enumerations
    mcp
 
 

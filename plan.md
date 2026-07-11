@@ -143,7 +143,22 @@ pandas — no new DB/query code.
 - Hatchling auto-discovers `src/dwclib/mcp`; no build-config change needed. Keep the
   already-staged `M pyproject.toml` change and add to it.
 
-## Verification
+## Verification — DONE (2026-07-11)
+
+Ran on this machine; all non-live-DB steps pass:
+1. `import dwclib` succeeds. ✓
+2. flake8+darglint clean over the plan-touched modules (numerics/waves/alerts/
+   enumerations/mcp). The 5 remaining B950/C901 warnings are pre-existing in
+   `patients.py` (older commits, untouched by this plan). ✓
+3. `nox -s docs` builds `docs/_build/{index,mcp,reference}.html`. ✓
+4. `uv sync --extra mcp` installs fastmcp 2.12.5; `from dwclib.mcp.server import mcp`
+   imports and `dwclib-mcp` launches a STDIO server. ✓
+5. In-memory `Client(mcp)`: 6 tools + `dwclib://reference` register; the reference
+   returns readable signatures/docstrings (~13.8 KB); calling a tool with no
+   reachable DB yields a graceful actionable error pointing at `config.ini`, not a
+   stack trace. ✓
+6. Live DB not reachable from here (connection timeout) — left for a machine with
+   DWC/DWCmeta access.
 
 1. **Import unaffected**: `python -c "import dwclib"` still succeeds (guarded mcp import untouched).
 2. **Lint/docstrings**: `nox -s lint` (flake8 + darglint) passes over `src/dwclib`.
