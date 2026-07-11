@@ -73,7 +73,7 @@ autodoc `dwclib.dask` (guarded import raises) or `dwclib.mcp` (needs fastmcp). A
 hand-written `docs/mcp.rst` (install, launch, the tools + the `dwclib://reference` resource,
 and the discover-then-generate-code workflow) referenced from the `index.rst` toctree.
 
-## Part 3 — The MCP server
+## Part 3 — The MCP server — DONE
 
 New package `src/dwclib/mcp/` (all MCP code contained here):
 
@@ -132,7 +132,7 @@ pandas — no new DB/query code.
 - Tools don't expose the `uri` override; they rely on the library's config-file defaults
   (`dwcuri`/`pguri` from `larib-data/config.ini`), keeping DB credentials server-side.
 
-## Part 4 — Packaging (`pyproject.toml`)
+## Part 4 — Packaging (`pyproject.toml`) — DONE
 
 - `[project.optional-dependencies]`: add `mcp = ["fastmcp>=2,<3"]` (mirrors the `dask` extra).
 - Add the stdio-server entrypoint:

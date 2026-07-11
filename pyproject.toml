@@ -22,6 +22,10 @@ dependencies = [
 [project.optional-dependencies]
 dwcmeta = ["psycopg[binary]>=3.2.3,<4"]
 dask = ["dask[dataframe]>=2024.4.1,<2025"]
+mcp = ["fastmcp>=2,<3"]
+
+[project.scripts]
+dwclib-mcp = "dwclib.mcp.server:main"
 
 [project.urls]
 Repository = "https://github.com/larib-data/dwclib"
