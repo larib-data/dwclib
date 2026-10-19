@@ -1,51 +1,55 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.0,<0.12.0"]
+build-backend = "uv_build"
 
 [project]
 name = "dwclib"
 version = "2026.7.11"
 description = "Python wrapper to DataWarehouse Connect"
 authors = [{ name = "Jona Joachim", email = "jona@joachim.cc" }]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.13"
 readme = "README.md"
 license = "ISC"
 dependencies = [
-    "numpy>=2,<3",
-    "pandas>=2,<3",
-    "SQLAlchemy>=2,<2.0.40",
-    "platformdirs>=3,<4",
+    "numpy>=2",
+    "pandas>=3",
+    "SQLAlchemy>=2.0.40",
+    "platformdirs>=4",
     "pyarrow>=23.0.1",
-    "pymssql>=2.3,!=2.3.13,<3",
+    "pymssql>=2.3,!=2.3.13",
 ]
 
 [project.optional-dependencies]
-dwcmeta = ["psycopg[binary]>=3.2.3,<4"]
-dask = ["dask[dataframe]>=2024.4.1,<2025"]
-mcp = ["fastmcp>=2,<3"]
-
-[project.scripts]
-dwclib-mcp = "dwclib.mcp.server:main"
+dwcmeta = ["psycopg[binary]>=3.2.3"]
+dask = ["dask[dataframe]>=2024.4.1"]
 
 [project.urls]
 Repository = "https://github.com/larib-data/dwclib"
 
 [dependency-groups]
-lint = [
-    "flake8",
-    "flake8-bandit",
-    "flake8-bugbear",
-    "flake8-docstrings",
-    "darglint",
-]
+dev = ["pytest>=9", "ruff>=0.15", "ty>=0.0.1a20"]
 docs = [
-    "sphinx",
+    "sphinx>=8",
     "sphinx-autodoc-typehints",
+    "furo>=2024.8.6",
+    "myst-parser>=4",
 ]
-audit = ["pip-audit"]
-dev = [
-    "nox",
-    { include-group = "lint" },
-    { include-group = "docs" },
-    { include-group = "audit" },
-]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.ty.analysis]
+# dask is an optional extra (dwclib.dask)
+allowed-unresolved-imports = ["dask", "dask.**"]
+
+[tool.pytest.ini_options]
+addopts = "-ra -q -m 'not live'"
+testpaths = ["tests"]
+markers = ["live: needs a real DWC / DWCmeta database"]

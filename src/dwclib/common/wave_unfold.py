@@ -1,3 +1,5 @@
+from typing import cast
+
 import numpy as np
 import pandas as pd
 
@@ -5,6 +7,7 @@ import pandas as pd
 def unfold_row(row: pd.Series) -> pd.Series:
     # XXX unify following line once we use the same unfold_row function for pandas and dask
     begintime = row.name[0] if isinstance(row.name, tuple) else row.name
+    begintime = cast(pd.Timestamp, begintime)
     basetime = 1000 * begintime.timestamp()
     msperiod = row["SamplePeriod"]
     bytesamples = row["WaveSamples"]

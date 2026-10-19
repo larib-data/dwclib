@@ -1,11 +1,12 @@
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import pandas as pd
+from sqlalchemy.engine import URL
 
-from dwclib.common.db import dwcuri
+from dwclib.common import db
 from dwclib.common.meta import waves_meta
 from dwclib.common.wave_unfold import unfold_row
 from dwclib.common.waves import run_waves_query
@@ -16,7 +17,7 @@ def read_waves(
     dtbegin: datetime,
     dtend: datetime,
     labels: Optional[List[str]] = None,
-    uri: str = None,
+    uri: str | URL | None = None,
 ) -> pd.DataFrame:
     """Reads high-frequency waveforms from the DWC database.
 
@@ -53,7 +54,7 @@ def read_waves(
             )
     """
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
     if labels is None:
         labels = []
     df = run_waves_query(uri, dtbegin, dtend, patientid, labels)
@@ -65,7 +66,7 @@ def read_wave_chunks(
     dtbegin: datetime,
     dtend: datetime,
     labels: Optional[List[str]] = None,
-    uri: str = None,
+    uri: str | URL | None = None,
 ) -> pd.DataFrame:
     """Reads raw waveform chunks from the DWC database without unfolding.
 
@@ -101,7 +102,7 @@ def read_wave_chunks(
             )
     """
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
     if labels is None:
         labels = []
     return run_waves_query(uri, dtbegin, dtend, patientid, labels)
@@ -121,8 +122,8 @@ def unfold_pandas_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(databuffer)
 
 
-def dictconcatter(d) -> pd.DataFrame:
+def dictconcatter(d) -> Callable[[str], None]:
     def dictconcat_runner(k):
-        d[k] = pd.concat(d[k], axis=0, copy=False).groupby(level=0).max()
+        d[k] = pd.concat(d[k], axis=0).groupby(level=0).max()
 
     return dictconcat_runner

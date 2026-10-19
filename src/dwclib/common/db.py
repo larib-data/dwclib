@@ -1,11 +1,12 @@
 import configparser
 from pathlib import Path
 from warnings import warn
+
 from platformdirs import user_config_dir
 from sqlalchemy.engine import URL
 
-dwcuri = None
-pguri = None
+dwcuri: URL | None = None
+pguri: URL | None = None
 config_dir = Path(
     user_config_dir(appname="larib-data", appauthor="larib-data", roaming=True)
 )
@@ -34,7 +35,7 @@ def load_config():
             host=config.get("dwc", "host"),
             database=config.get("dwc", "dbname"),
         )
-    except configparser.NoOptionError:
+    except configparser.Error:
         warn(f"No valid DWC configuration in {configfile}.", RuntimeWarning)
 
     try:
@@ -45,8 +46,22 @@ def load_config():
             host=config.get("dwcmeta", "host"),
             database=config.get("dwcmeta", "dbname"),
         )
-    except configparser.NoOptionError:
+    except configparser.Error:
         warn(f"No valid DWCmeta configuration in {configfile}.", RuntimeWarning)
+
+
+def get_dwcuri() -> URL:
+    """Return the DWC (MSSQL) URI from the config, read at call time."""
+    if dwcuri is None:
+        raise RuntimeError(f"No valid DWC configuration in {configfile}.")
+    return dwcuri
+
+
+def get_pguri() -> URL:
+    """Return the DWCmeta (Postgres) URI from the config, read at call time."""
+    if pguri is None:
+        raise RuntimeError(f"No valid DWCmeta configuration in {configfile}.")
+    return pguri
 
 
 if configfile.exists():

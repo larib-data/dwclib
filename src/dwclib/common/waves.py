@@ -15,7 +15,7 @@ def run_waves_query(uri, dtbegin, dtend, patientid, labels):
         return waves_meta
     else:
         df.index = pd.to_datetime(df.index, utc=True)
-        return df.astype(waves_meta.dtypes.to_dict(), copy=False)
+        return df.astype(waves_meta.dtypes.to_dict())
 
 
 def build_waves_query(engine, dtbegin, dtend, patientid, labels):

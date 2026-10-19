@@ -1,21 +1,24 @@
+from collections.abc import Hashable
 from datetime import datetime
 from functools import lru_cache
 from importlib import resources
-from typing import List, Optional, Union
+from typing import List, Union
 
 import pandas as pd
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, func, select
+from sqlalchemy.engine import URL
 
 from dwclib import assets
-from dwclib.common.db import dwcuri
+from dwclib.common import db
+from dwclib.common.ids import squeeze_ids
 
 
 def read_alerts(
     patientids: Union[None, str, List[str]],
     dtbegin: datetime,
     dtend: datetime,
-    uri: Optional[str] = None,
+    uri: str | URL | None = None,
 ) -> pd.DataFrame:
     """Reads alerts from the DWC database.
 
@@ -50,15 +53,14 @@ def read_alerts(
             )
     """
     if not uri:
-        uri = dwcuri
-    if is_list_like(patientids) and len(patientids) == 1:
-        patientids = patientids[0]
+        uri = db.get_dwcuri()
+    patientids = squeeze_ids(patientids)
     df = run_alerts_query(uri, dtbegin, dtend, patientids)
     return df
 
 
 def run_alerts_query(
-    uri: str,
+    uri: str | URL,
     dtbegin: datetime,
     dtend: datetime,
     patientids: Union[None, str, List[str]],
@@ -110,11 +112,11 @@ def load_alerts_meta():
         "severity",
         "source_label",
     ]
-    dtypes = {c: "string" for c in cols}
+    dtypes: dict[Hashable, str] = {c: "string" for c in cols}
     dtypes["physioid"] = "Int64"
     dtypes["alert_code"] = "Int64"
 
-    with resources.open_text(assets, "alert_ref.csv") as fd:
+    with resources.files(assets).joinpath("alert_ref.csv").open() as fd:
         df = pd.read_csv(
             fd, usecols=cols, index_col=["physioid", "alert_code"], dtype=dtypes
         )

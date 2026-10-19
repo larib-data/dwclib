@@ -1,7 +1,0 @@
-[flake8]
-; select = C,E,F,W,S,B,B9,D,DAR
-select = C,E,F,W,S,B,B9,DAR
-max-complexity = 10
-ignore = E203,E501,W503
-max-line-length = 88
-docstring-convention = google

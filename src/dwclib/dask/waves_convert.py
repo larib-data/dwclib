@@ -1,12 +1,12 @@
 from functools import partial
 from typing import List, Optional
 
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from dwclib.common.wave_unfold import unfold_row
-
-import dask.dataframe as dd
 from dask.dataframe.utils import make_meta
+
+from dwclib.common.wave_unfold import unfold_row
 
 
 def unfold_pandas_dataframe(

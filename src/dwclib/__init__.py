@@ -17,7 +17,6 @@ __all__ = [
     "waves",
     "alerts",
     "patients",
-    "dask",
     "assets",
     "read_waves",
     "read_wave_chunks",

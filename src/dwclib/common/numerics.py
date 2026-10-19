@@ -2,13 +2,15 @@ from datetime import datetime
 from typing import List, Union
 
 import pandas as pd
-from dwclib.common.meta import numerics_meta
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
+from sqlalchemy.engine import URL
+
+from dwclib.common.meta import numerics_meta
 
 
 def run_numerics_query(
-    uri: str,
+    uri: str | URL,
     dtbegin: datetime,
     dtend: datetime,
     patientids: Union[None, str, List[str]],
@@ -25,7 +27,7 @@ def run_numerics_query(
         return numerics_meta
     else:
         df.index = pd.to_datetime(df.index, utc=True)
-        return df.astype(numerics_meta.dtypes.to_dict(), copy=False)
+        return df.astype(numerics_meta.dtypes.to_dict())
 
 
 def build_numerics_query(engine, dtbegin, dtend, patientids, labels, sublabels):

@@ -4,8 +4,10 @@ from typing import List, Optional, Union
 import pandas as pd
 from pandas.api.types import is_list_like
 from sqlalchemy import MetaData, Table, create_engine, join, select
+from sqlalchemy.engine import URL
 
-from dwclib.common.db import dwcuri
+from dwclib.common import db
+from dwclib.common.ids import squeeze_ids
 from dwclib.common.meta import enumerations_meta
 
 
@@ -15,7 +17,7 @@ def read_enumerations(
     dtend: datetime,
     labels: Optional[List[str]] = None,
     pivot: bool = True,
-    uri: Optional[str] = None,
+    uri: str | URL | None = None,
 ) -> pd.DataFrame:
     """Reads enumerations (categorical parameters) from the DWC database.
 
@@ -56,11 +58,10 @@ def read_enumerations(
             )
     """
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
     if labels is None:
         labels = []
-    if is_list_like(patientids) and len(patientids) == 1:
-        patientids = patientids[0]
+    patientids = squeeze_ids(patientids)
     df = run_enumerations_query(uri, dtbegin, dtend, patientids, labels)
     df = df.dropna(axis=0, how="any", subset=["Value"])
     if not len(df.index):
@@ -73,7 +74,7 @@ def read_enumerations(
     return df
 
 
-def pivot_enumerations(df: pd.DataFrame) -> Optional[pd.DataFrame]:
+def pivot_enumerations(df: pd.DataFrame) -> pd.DataFrame:
     df = df.pivot_table(
         index=df.index,
         columns=["PatientId", "Label"],
@@ -84,7 +85,7 @@ def pivot_enumerations(df: pd.DataFrame) -> Optional[pd.DataFrame]:
 
 
 def run_enumerations_query(
-    uri: str,
+    uri: str | URL,
     dtbegin: datetime,
     dtend: datetime,
     patientids: Union[None, str, List[str]],
@@ -100,7 +101,7 @@ def run_enumerations_query(
         return enumerations_meta
     else:
         df.index = pd.to_datetime(df.index, utc=True)
-        return df.astype(enumerations_meta.dtypes.to_dict(), copy=False)
+        return df.astype(enumerations_meta.dtypes.to_dict())
 
 
 def build_enumerations_query(engine, dtbegin, dtend, patientids, labels):

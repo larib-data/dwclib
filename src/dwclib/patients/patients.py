@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
+
 import pandas as pd
+import sqlalchemy.exc
 from sqlalchemy import MetaData, Table, asc, create_engine, func, or_, select
-import sqlalchemy
-from dwclib.common.db import dwcuri, pguri
+from sqlalchemy.engine import URL
+
+from dwclib.common import db
 
 
 def read_patient(*args, **kwargs) -> Optional[pd.Series]:
@@ -15,7 +18,8 @@ def read_patient(*args, **kwargs) -> Optional[pd.Series]:
         patientid: A DWC patient identifier
         name: A patient name
         firstname: A patient first name
-        ipp: A patient lifetime identifier
+        ipp: A patient lifetime identifier (IPP)
+        nda: A patient encounter identifier (NDA, ``encounterid`` column)
         dtbegin: The beginning of available data samples
         dtend: The end of available data samples
         clinicalunit: The clinical unit the patient belongs to
@@ -34,18 +38,19 @@ def read_patient(*args, **kwargs) -> Optional[pd.Series]:
 
 
 def read_patients(
-    patientid: str = None,
-    name: str = None,
-    firstname: str = None,
-    ipp: str = None,
+    patientid: str | None = None,
+    name: str | None = None,
+    firstname: str | None = None,
+    ipp: str | None = None,
+    nda: str | None = None,
     dtbegin: datetime | None = None,
     dtend: datetime | None = None,
-    clinicalunit: str = None,
-    bedlabel: str = None,
+    clinicalunit: str | None = None,
+    bedlabel: str | None = None,
     wavelabels: Optional[List[str]] = None,
     numericlabels: Optional[List[str]] = None,
     numericsublabels: Optional[List[str]] = None,
-    uri: Optional[str] = None,
+    uri: str | URL | None = None,
     limit: Optional[int] = None,
 ) -> pd.DataFrame:
     """Reads patients from DWCmeta database.
@@ -56,7 +61,8 @@ def read_patients(
         patientid: A DWC patient identifier
         name: A patient name
         firstname: A patient first name
-        ipp: A patient lifetime identifier
+        ipp: A patient lifetime identifier (IPP)
+        nda: A patient encounter identifier (NDA, ``encounterid`` column)
         dtbegin: The beginning of available data samples
         dtend: The end of available data samples
         clinicalunit: The clinical unit the patient belongs to
@@ -68,10 +74,12 @@ def read_patients(
         limit: Maximum number of returned results
 
     Returns:
-        A pandas dataframe with each row corresponding to an individual patient stay, indexed by unique DWC patient identifiers.
+        A pandas dataframe with each row corresponding to an individual patient stay,
+        indexed by unique DWC patient identifiers. The columns include ``lifetimeid``
+        (the IPP) and ``encounterid`` (the NDA).
     """
     if not uri:
-        uri = pguri
+        uri = db.get_pguri()
     if wavelabels is None:
         wavelabels = []
     if numericlabels is None:
@@ -84,6 +92,7 @@ def read_patients(
         name,
         firstname,
         ipp,
+        nda,
         dtbegin,
         dtend,
         clinicalunit,
@@ -125,12 +134,12 @@ def read_patient_dwc_native(*args, **kwargs) -> Optional[pd.Series]:
 
 
 def read_patients_dwc_native(
-    patientid: str = None,
+    patientid: str | None = None,
     dtbegin: datetime | None = None,
     dtend: datetime | None = None,
-    clinicalunit: str = None,
-    bedlabel: str = None,
-    uri: Optional[str] = None,
+    clinicalunit: str | None = None,
+    bedlabel: str | None = None,
+    uri: str | URL | None = None,
     limit: Optional[int] = None,
 ) -> pd.DataFrame:
     """Reads patients from DWC database with the need of dwcmeta.
@@ -150,7 +159,7 @@ def read_patients_dwc_native(
         A pandas dataframe with each row corresponding to an individual patient stay, indexed by unique DWC patient identifiers.
     """
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
 
     q = build_query_dwc_native(
         uri,
@@ -175,6 +184,7 @@ def build_query(
     name,
     firstname,
     ipp,
+    nda,
     dtbegin,
     dtend,
     clinicalunit,
@@ -222,6 +232,8 @@ def build_query(
         q = q.order_by(asc(p.d_firstname))
     if ipp:
         q = q.where(p.lifetimeid == ipp)
+    if nda:
+        q = q.where(p.encounterid == nda)
     if bedlabel:
         q = q.where(p.bedlabel == bedlabel)
     if clinicalunit:

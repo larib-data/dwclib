@@ -4,7 +4,8 @@ from itertools import count
 import dask
 import dask.dataframe as dd
 from dask import delayed
-from dwclib.common.db import dwcuri
+
+from dwclib.common import db
 
 one_hour = timedelta(hours=1)
 dask.config.set({"dataframe.convert-string": False})
@@ -34,7 +35,7 @@ def read_data(
     **kwargs,
 ):
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
     ranges, divisions = build_divisions(dtbegin, dtend, interval)
     parts = []
     for begin, end in ranges:

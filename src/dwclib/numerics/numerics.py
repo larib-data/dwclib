@@ -3,8 +3,10 @@ from typing import List, Optional, Union
 
 import pandas as pd
 from pandas.api.types import is_list_like
+from sqlalchemy.engine import URL
 
-from dwclib.common.db import dwcuri
+from dwclib.common import db
+from dwclib.common.ids import squeeze_ids
 from dwclib.common.meta import numerics_meta
 from dwclib.common.numerics import run_numerics_query
 
@@ -16,7 +18,7 @@ def read_numerics(
     labels: Optional[List[str]] = None,
     sublabels: Optional[List[str]] = None,
     pivot: bool = True,
-    uri: Optional[str] = None,
+    uri: str | URL | None = None,
 ) -> pd.DataFrame:
     """Reads numeric parameters from the DWC database.
 
@@ -68,13 +70,12 @@ def read_numerics(
             )
     """
     if not uri:
-        uri = dwcuri
+        uri = db.get_dwcuri()
     if labels is None:
         labels = []
     if sublabels is None:
         sublabels = []
-    if is_list_like(patientids) and len(patientids) == 1:
-        patientids = patientids[0]
+    patientids = squeeze_ids(patientids)
     df = run_numerics_query(uri, dtbegin, dtend, patientids, labels, sublabels)
     df = df.dropna(axis=0, how="any", subset=["Value"])
     if not len(df.index):
@@ -89,7 +90,7 @@ def read_numerics(
     return df
 
 
-def pivot_numerics(df: pd.DataFrame) -> Optional[pd.DataFrame]:
+def pivot_numerics(df: pd.DataFrame) -> pd.DataFrame:
     df = df.pivot_table(
         index=df.index,
         columns=["PatientId", "SubLabel"],
