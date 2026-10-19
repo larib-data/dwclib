@@ -7,3 +7,5 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
 ]
+html_theme = "furo"
+exclude_patterns = ["_build"]

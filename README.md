@@ -3,9 +3,35 @@ Python wrapper to DataWarehouse Connect.
 -   Free software: ISC license
 
 ## Installation
-`pip install dwclib`
+`pip install dwclib` (add the `dwcmeta` extra to search patients in DWCmeta,
+the `dask` extra for dask support). Python 3.13 or newer.
+
+The MCP server that used to ship here has moved to
+[laribdb_mcp](https://github.com/larib-data/laribdb_mcp).
+
+## Development
+The project is managed with [uv](https://docs.astral.sh/uv/) (`uv_build`
+backend). Linting and formatting moved from nox, flake8 and darglint to ruff;
+type checking uses ty.
+
+```sh
+uv sync
+uv run ruff check && uv run ruff format --check
+uv run ty check
+uv run pytest
+uv run --group docs sphinx-build -W docs docs/_build
+uvx pip-audit
+```
 
 ## Changelog
+- Unreleased
+    - pandas 3 (no dask by default; dask is an optional extra), Python 3.13+
+    - `read_patients` filters and returns the NDA (`nda=`, `encounterid`)
+    - Config is read at call time, so `update_config()` takes effect at once
+    - Move the MCP server to laribdb_mcp
+    - Replace nox, flake8 and darglint with ruff and ty; build with uv_build
+    - SQLAlchemy below 2.0.42 (newer MSSQL reflection drops DWC columns)
+
 - 2026.07.11
     - Update documentation, add MCP server, update dependencies, move from poetry to uv
 

@@ -5,10 +5,10 @@ Philips DataWarehouse Connect (DWC). It queries patient monitoring data
 (numerics, high-frequency waveforms, enumerations, alerts) and returns pandas
 DataFrames.
 
-## MCP server: use temple_mcp
+## MCP server: use laribdb_mcp
 
 The MCP server that used to ship here (`dwclib-mcp`, the `mcp` extra) has moved to
-**temple_mcp** (`github.com/larib-data/temple_mcp`), which serves DWC monitoring
+**laribdb_mcp** (`github.com/larib-data/laribdb_mcp`), which serves DWC monitoring
 data together with ICCA anesthesia charting data. Use its `dwc_*` tools for
 patient discovery and summaries instead of writing ad-hoc SQL.
 
