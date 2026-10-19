@@ -13,7 +13,10 @@ license = "ISC"
 dependencies = [
     "numpy>=2",
     "pandas>=3",
-    "SQLAlchemy>=2.0.40",
+    # From 2.0.42 on, MSSQL table reflection drops the DWC _Export columns
+    # whose (user-defined) types this login cannot see: TimeStamp, Label,
+    # SubLabel... (checked against the live DWC, October 2026).
+    "SQLAlchemy>=2,<2.0.42",
     "platformdirs>=4",
     "pyarrow>=23.0.1",
     "pymssql>=2.3,!=2.3.13",
